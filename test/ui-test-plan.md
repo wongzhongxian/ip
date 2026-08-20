@@ -131,13 +131,15 @@ bye
 
 ### TC-04: Reject empty and unknown commands
 
-**Aim:** Verify that blank input, an empty todo, and an unknown command produce helpful errors without ending the session.
+**Aim:** Verify that blank input, an empty todo, unknown commands, and extra arguments on argument-free commands produce helpful errors without ending the session.
 
 **Inputs:**
 ```text
 
 todo
 blah
+list extra
+bye now
 list
 bye
 ```
@@ -159,6 +161,12 @@ bye
     ____________________________________________________________
     ____________________________________________________________
      OOPS!!! A todo needs a description after "todo".
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.
     ____________________________________________________________
     ____________________________________________________________
      OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.

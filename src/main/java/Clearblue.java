@@ -26,18 +26,21 @@ public class Clearblue {
 
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine().trim();
+            CommandType commandType = CommandType.fromCommand(command);
+            String commandArguments = getCommandArguments(command, commandType);
             System.out.println(DIVIDER);
 
-            if (command.equals("bye")) {
+            if (commandType == CommandType.BYE && commandArguments.isEmpty()) {
                 System.out.println("     Bye. Hope to see you again soon! :)");
                 System.out.println(DIVIDER);
                 break;
             }
 
-            if (command.isEmpty()) {
-                printError("Please enter a command.");
-            } else if (command.equals("list")) {
-                if (taskCount == 0) {
+            switch (commandType) {
+            case LIST -> {
+                if (!commandArguments.isEmpty()) {
+                    printUnknownCommand();
+                } else if (taskCount == 0) {
                     System.out.println("     Your task list is empty.");
                 } else {
                     System.out.println("     Here are the tasks in your list:");
@@ -45,34 +48,26 @@ public class Clearblue {
                         System.out.println("     " + (i + 1) + "." + tasks[i]);
                     }
                 }
-            } else if (command.equals("mark") || command.startsWith("mark ")) {
-                String taskNumber = command.substring("mark".length()).trim();
-                updateTaskStatus(tasks, taskCount, taskNumber, true);
-            } else if (command.equals("unmark") || command.startsWith("unmark ")) {
-                String taskNumber = command.substring("unmark".length()).trim();
-                updateTaskStatus(tasks, taskCount, taskNumber, false);
-            } else if (command.equals("delete") || command.startsWith("delete ")) {
-                String taskNumber = command.substring("delete".length()).trim();
-                taskCount = deleteTask(tasks, taskCount, taskNumber);
-            } else if (command.equals("todo")) {
-                printError("A todo needs a description after \"todo\".");
-            } else if (command.startsWith("todo ")) {
-                String description = command.substring("todo ".length()).trim();
-                if (description.isEmpty()) {
+            }
+            case MARK -> updateTaskStatus(tasks, taskCount, commandArguments, true);
+            case UNMARK -> updateTaskStatus(tasks, taskCount, commandArguments, false);
+            case DELETE -> taskCount = deleteTask(tasks, taskCount, commandArguments);
+            case TODO -> {
+                if (commandArguments.isEmpty()) {
                     printError("A todo needs a description after \"todo\".");
                 } else {
-                    taskCount = addTask(tasks, taskCount, new Todo(description));
+                    taskCount = addTask(tasks, taskCount, new Todo(commandArguments));
                 }
-            } else if (command.equals("deadline") || command.startsWith("deadline ")) {
-                String details = command.substring("deadline".length()).trim();
-                int byIndex = details.indexOf("/by");
+            }
+            case DEADLINE -> {
+                int byIndex = commandArguments.indexOf("/by");
 
                 if (byIndex < 0) {
                     printError("A deadline needs a /by separator. "
                             + "Example: deadline return book /by Sunday");
                 } else {
-                    String description = details.substring(0, byIndex).trim();
-                    String by = details.substring(byIndex + "/by".length()).trim();
+                    String description = commandArguments.substring(0, byIndex).trim();
+                    String by = commandArguments.substring(byIndex + "/by".length()).trim();
 
                     if (description.isEmpty()) {
                         printError("A deadline needs a description before /by.");
@@ -82,23 +77,24 @@ public class Clearblue {
                         taskCount = addTask(tasks, taskCount, new Deadline(description, by));
                     }
                 }
-            } else if (command.equals("event") || command.startsWith("event ")) {
-                String details = command.substring("event".length()).trim();
-                int fromIndex = details.indexOf("/from");
+            }
+            case EVENT -> {
+                int fromIndex = commandArguments.indexOf("/from");
 
                 if (fromIndex < 0) {
                     printError("An event needs a /from separator. "
                             + "Example: event meeting /from 2pm /to 4pm");
                 } else {
-                    int toIndex = details.indexOf("/to", fromIndex + "/from".length());
+                    int toIndex = commandArguments.indexOf("/to", fromIndex + "/from".length());
 
                     if (toIndex < 0) {
                         printError("An event needs a /to separator. "
                                 + "Example: event meeting /from 2pm /to 4pm");
                     } else {
-                        String description = details.substring(0, fromIndex).trim();
-                        String from = details.substring(fromIndex + "/from".length(), toIndex).trim();
-                        String to = details.substring(toIndex + "/to".length()).trim();
+                        String description = commandArguments.substring(0, fromIndex).trim();
+                        String from = commandArguments.substring(
+                                fromIndex + "/from".length(), toIndex).trim();
+                        String to = commandArguments.substring(toIndex + "/to".length()).trim();
 
                         if (description.isEmpty()) {
                             printError("An event needs a description before /from.");
@@ -111,13 +107,32 @@ public class Clearblue {
                         }
                     }
                 }
-            } else {
-                printError("I don't recognize that command. "
-                        + "Try todo, deadline, event, list, mark, unmark, delete, or bye.");
+            }
+            case BYE, UNKNOWN -> {
+                if (command.isEmpty()) {
+                    printError("Please enter a command.");
+                } else {
+                    printUnknownCommand();
+                }
+            }
             }
 
             System.out.println(DIVIDER);
         }
+    }
+
+    /**
+     * Returns the part of a command that follows its command word.
+     *
+     * @param command complete command entered by the user
+     * @param commandType parsed command type
+     * @return trimmed command arguments, or the original input for an unknown command
+     */
+    private static String getCommandArguments(String command, CommandType commandType) {
+        if (commandType == CommandType.UNKNOWN) {
+            return command;
+        }
+        return command.substring(commandType.getCommandWord().length()).trim();
     }
 
     /**
@@ -248,5 +263,13 @@ public class Clearblue {
      */
     private static void printError(String message) {
         System.out.println("     OOPS!!! " + message);
+    }
+
+    /**
+     * Prints the list of supported commands after an unknown command.
+     */
+    private static void printUnknownCommand() {
+        printError("I don't recognize that command. "
+                + "Try todo, deadline, event, list, mark, unmark, delete, or bye.");
     }
 }
