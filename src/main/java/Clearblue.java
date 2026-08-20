@@ -51,6 +51,9 @@ public class Clearblue {
             } else if (command.equals("unmark") || command.startsWith("unmark ")) {
                 String taskNumber = command.substring("unmark".length()).trim();
                 updateTaskStatus(tasks, taskCount, taskNumber, false);
+            } else if (command.equals("delete") || command.startsWith("delete ")) {
+                String taskNumber = command.substring("delete".length()).trim();
+                taskCount = deleteTask(tasks, taskCount, taskNumber);
             } else if (command.equals("todo")) {
                 printError("A todo needs a description after \"todo\".");
             } else if (command.startsWith("todo ")) {
@@ -110,7 +113,7 @@ public class Clearblue {
                 }
             } else {
                 printError("I don't recognize that command. "
-                        + "Try todo, deadline, event, list, mark, unmark, or bye.");
+                        + "Try todo, deadline, event, list, mark, unmark, delete, or bye.");
             }
 
             System.out.println(DIVIDER);
@@ -148,30 +151,12 @@ public class Clearblue {
     private static void updateTaskStatus(Task[] tasks, int taskCount, String taskNumberText,
                                          boolean isMarkCommand) {
         String action = isMarkCommand ? "mark" : "unmark";
-        if (taskCount == 0) {
-            printError("There are no tasks to " + action + ".");
-            return;
-        }
-        if (taskNumberText.isEmpty()) {
-            printError("Tell me which task to " + action + ". Example: " + action + " 1");
+        int taskIndex = getValidTaskIndex(taskCount, taskNumberText, action);
+        if (taskIndex < 0) {
             return;
         }
 
-        int taskNumber;
-        try {
-            taskNumber = Integer.parseInt(taskNumberText);
-        } catch (NumberFormatException exception) {
-            printError("The task number must be a whole number. Example: " + action + " 1");
-            return;
-        }
-
-        if (taskNumber < 1 || taskNumber > taskCount) {
-            String validRange = taskCount == 1 ? "1" : "1 to " + taskCount;
-            printError("Task " + taskNumber + " does not exist. Choose " + validRange + ".");
-            return;
-        }
-
-        Task task = tasks[taskNumber - 1];
+        Task task = tasks[taskIndex];
         if (isMarkCommand) {
             task.markAsDone();
             System.out.println("     Nice! I've marked this task as done:");
@@ -180,6 +165,68 @@ public class Clearblue {
             System.out.println("     OK, I've marked this task as not done yet:");
         }
         System.out.println("       " + task);
+    }
+
+    /**
+     * Removes a selected task, shifts later tasks forward, and returns the new task count.
+     *
+     * @param tasks task storage
+     * @param taskCount number of tasks currently stored
+     * @param taskNumberText user-provided task number
+     * @return the number of stored tasks after the operation
+     */
+    private static int deleteTask(Task[] tasks, int taskCount, String taskNumberText) {
+        int taskIndex = getValidTaskIndex(taskCount, taskNumberText, "delete");
+        if (taskIndex < 0) {
+            return taskCount;
+        }
+
+        Task removedTask = tasks[taskIndex];
+        for (int i = taskIndex; i < taskCount - 1; i++) {
+            tasks[i] = tasks[i + 1];
+        }
+        tasks[taskCount - 1] = null;
+        int newTaskCount = taskCount - 1;
+
+        System.out.println("     Noted. I've removed this task:");
+        System.out.println("       " + removedTask);
+        System.out.println("     Now you have " + newTaskCount + " tasks in the list.");
+        return newTaskCount;
+    }
+
+    /**
+     * Validates a user-provided task number for an operation.
+     *
+     * @param taskCount number of tasks currently stored
+     * @param taskNumberText user-provided task number
+     * @param action operation that will use the selected task
+     * @return zero-based task index, or {@code -1} when validation fails
+     */
+    private static int getValidTaskIndex(int taskCount, String taskNumberText, String action) {
+        if (taskCount == 0) {
+            printError("There are no tasks to " + action + ".");
+            return -1;
+        }
+        if (taskNumberText.isEmpty()) {
+            printError("Tell me which task to " + action + ". Example: " + action + " 1");
+            return -1;
+        }
+
+        int taskNumber;
+        try {
+            taskNumber = Integer.parseInt(taskNumberText);
+        } catch (NumberFormatException exception) {
+            printError("The task number must be a whole number. Example: " + action + " 1");
+            return -1;
+        }
+
+        if (taskNumber < 1 || taskNumber > taskCount) {
+            String validRange = taskCount == 1 ? "1" : "1 to " + taskCount;
+            printError("Task " + taskNumber + " does not exist. Choose " + validRange + ".");
+            return -1;
+        }
+
+        return taskNumber - 1;
     }
 
     /**
