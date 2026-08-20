@@ -1,7 +1,7 @@
 import java.util.Scanner;
 
 /**
- * Runs the Clearblue chatbot and responds to commands entered by the user.
+ * Runs the Clearblue chatbot and responds to task-management commands.
  */
 public class Clearblue {
     private static final String DIVIDER = "    ____________________________________________________________";
@@ -51,13 +51,70 @@ public class Clearblue {
                 tasks[taskIndex].markAsNotDone();
                 System.out.println("     OK, I've marked this task as not done yet:");
                 System.out.println("       " + tasks[taskIndex]);
+            } else if (command.startsWith("todo ")) {
+                String description = command.substring("todo ".length()).trim();
+                if (description.isEmpty()) {
+                    System.out.println("     The description of a todo cannot be empty.");
+                } else {
+                    tasks[taskCount] = new Todo(description);
+                    taskCount++;
+                    printTaskAdded(tasks[taskCount - 1], taskCount);
+                }
+            } else if (command.startsWith("deadline ")) {
+                String details = command.substring("deadline ".length()).trim();
+                int byIndex = details.indexOf(" /by ");
+
+                if (byIndex < 0) {
+                    System.out.println("     Use: deadline DESCRIPTION /by DATE_OR_TIME");
+                } else {
+                    String description = details.substring(0, byIndex).trim();
+                    String by = details.substring(byIndex + " /by ".length()).trim();
+
+                    if (description.isEmpty() || by.isEmpty()) {
+                        System.out.println("     A deadline needs both a description and a /by value.");
+                    } else {
+                        tasks[taskCount] = new Deadline(description, by);
+                        taskCount++;
+                        printTaskAdded(tasks[taskCount - 1], taskCount);
+                    }
+                }
+            } else if (command.startsWith("event ")) {
+                String details = command.substring("event ".length()).trim();
+                int fromIndex = details.indexOf(" /from ");
+                int toIndex = details.indexOf(" /to ", fromIndex + 1);
+
+                if (fromIndex < 0 || toIndex < 0) {
+                    System.out.println("     Use: event DESCRIPTION /from START /to END");
+                } else {
+                    String description = details.substring(0, fromIndex).trim();
+                    String from = details.substring(fromIndex + " /from ".length(), toIndex).trim();
+                    String to = details.substring(toIndex + " /to ".length()).trim();
+
+                    if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
+                        System.out.println("     An event needs a description, a /from value, and a /to value.");
+                    } else {
+                        tasks[taskCount] = new Event(description, from, to);
+                        taskCount++;
+                        printTaskAdded(tasks[taskCount - 1], taskCount);
+                    }
+                }
             } else {
-                tasks[taskCount] = new Task(command);
-                taskCount++;
-                System.out.println("     added: " + command);
+                System.out.println("     I don't understand that command.");
             }
 
             System.out.println(DIVIDER);
         }
+    }
+
+    /**
+     * Prints confirmation after a task is added.
+     *
+     * @param task task that was added
+     * @param taskCount total number of tasks after adding the task
+     */
+    private static void printTaskAdded(Task task, int taskCount) {
+        System.out.println("     Got it. I've added this task:");
+        System.out.println("       " + task);
+        System.out.println("     Now you have " + taskCount + " tasks in the list.");
     }
 }
