@@ -1,7 +1,10 @@
-package clearblue;
+package clearblue.ui;
 
 import java.util.List;
 import java.util.Scanner;
+
+import clearblue.task.Task;
+import clearblue.task.TaskList;
 
 /**
  * Handles all interaction with the user: printing messages to standard

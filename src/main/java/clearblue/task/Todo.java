@@ -1,4 +1,4 @@
-package clearblue;
+package clearblue.task;
 
 /**
  * Represents a task that has no date or time attached to it.

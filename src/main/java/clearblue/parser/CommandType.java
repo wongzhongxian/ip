@@ -1,4 +1,4 @@
-package clearblue;
+package clearblue.parser;
 
 /**
  * Identifies the fixed set of commands understood by Clearblue.

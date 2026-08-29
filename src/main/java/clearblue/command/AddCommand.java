@@ -1,4 +1,10 @@
-package clearblue;
+package clearblue.command;
+
+import clearblue.ClearblueException;
+import clearblue.storage.Storage;
+import clearblue.task.Task;
+import clearblue.task.TaskList;
+import clearblue.ui.Ui;
 
 /**
  * Adds a task to the list, reports it to the user, and saves the list.

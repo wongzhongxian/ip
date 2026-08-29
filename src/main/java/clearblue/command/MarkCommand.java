@@ -1,4 +1,10 @@
-package clearblue;
+package clearblue.command;
+
+import clearblue.ClearblueException;
+import clearblue.storage.Storage;
+import clearblue.task.Task;
+import clearblue.task.TaskList;
+import clearblue.ui.Ui;
 
 /**
  * Marks or unmarks a task by its one-based list number, reports it to the

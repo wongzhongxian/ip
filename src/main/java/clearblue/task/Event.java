@@ -1,4 +1,4 @@
-package clearblue;
+package clearblue.task;
 
 /**
  * Represents a task that takes place between a start and an end date or time.
