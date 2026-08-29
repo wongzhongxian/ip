@@ -96,7 +96,8 @@ public class ParserTest {
 
     @Test
     public void parse_eventMissingFromSeparator_throws() {
-        ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse("event trip"));
+        ClearblueException exception =
+                assertThrows(ClearblueException.class, () -> Parser.parse("event trip"));
         assertTrue(exception.getMessage().contains("/from separator"));
     }
 
@@ -161,7 +162,8 @@ public class ParserTest {
 
     @Test
     public void parse_listWithExtraArguments_throwsUnknownCommand() {
-        ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse("list extra"));
+        ClearblueException exception =
+                assertThrows(ClearblueException.class, () -> Parser.parse("list extra"));
         assertTrue(exception.getMessage().startsWith("I don't recognize that command."));
     }
 
@@ -178,7 +180,8 @@ public class ParserTest {
 
     @Test
     public void parse_onInvalidDateFormat_throws() {
-        ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse("on not-a-date"));
+        ClearblueException exception =
+                assertThrows(ClearblueException.class, () -> Parser.parse("on not-a-date"));
         assertEquals("The date must be in yyyy-MM-dd format. Example: on 2019-06-06", exception.getMessage());
     }
 
@@ -203,7 +206,8 @@ public class ParserTest {
     public void parse_unrecognizedWord_throwsUnknownCommandMessage() {
         ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse("blah"));
         assertEquals(
-                "I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, or bye.",
+                "I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, "
+                        + "or bye.",
                 exception.getMessage());
     }
 }

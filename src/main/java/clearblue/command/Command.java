@@ -49,7 +49,8 @@ public abstract class Command {
         }
         if (taskNumber < 1 || taskNumber > tasks.size()) {
             String validRange = tasks.size() == 1 ? "1" : "1 to " + tasks.size();
-            throw new ClearblueException("Task " + taskNumber + " does not exist. Choose " + validRange + ".");
+            throw new ClearblueException(
+                    "Task " + taskNumber + " does not exist. Choose " + validRange + ".");
         }
         return taskNumber - 1;
     }
