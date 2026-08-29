@@ -22,7 +22,7 @@ public class Clearblue {
 
         Scanner scanner = new Scanner(System.in);
         Task[] tasks = new Task[MAX_TASKS];
-        int taskCount = 0;
+        int taskCount = Storage.load(tasks);
 
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine().trim();
