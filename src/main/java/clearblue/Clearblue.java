@@ -22,8 +22,8 @@ public class Clearblue {
 
         while (ui.hasNextCommand()) {
             String command = ui.readCommand();
-            CommandType commandType = CommandType.fromCommand(command);
-            String commandArguments = getCommandArguments(command, commandType);
+            CommandType commandType = Parser.parseCommandType(command);
+            String commandArguments = Parser.parseArguments(command, commandType);
             ui.showLine();
 
             if (commandType == CommandType.BYE && commandArguments.isEmpty()) {
@@ -124,20 +124,6 @@ public class Clearblue {
 
             ui.showLine();
         }
-    }
-
-    /**
-     * Returns the part of a command that follows its command word.
-     *
-     * @param command complete command entered by the user
-     * @param commandType parsed command type
-     * @return trimmed command arguments, or the original input for an unknown command
-     */
-    private static String getCommandArguments(String command, CommandType commandType) {
-        if (commandType == CommandType.UNKNOWN) {
-            return command;
-        }
-        return command.substring(commandType.getCommandWord().length()).trim();
     }
 
     /**
