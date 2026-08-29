@@ -20,8 +20,9 @@ public class Storage {
      * folder first if it does not already exist.
      *
      * @param tasks tasks to save
+     * @throws ClearblueException if the tasks could not be written to disk
      */
-    public static void save(List<Task> tasks) {
+    public static void save(List<Task> tasks) throws ClearblueException {
         List<String> lines = new ArrayList<>();
         for (Task task : tasks) {
             lines.add(encode(task));
@@ -34,7 +35,7 @@ public class Storage {
             }
             Files.write(DATA_FILE, lines);
         } catch (IOException exception) {
-            System.out.println("     OOPS!!! Could not save tasks to disk: " + exception.getMessage());
+            throw new ClearblueException("Could not save tasks to disk: " + exception.getMessage(), exception);
         }
     }
 
@@ -46,8 +47,9 @@ public class Storage {
      * chatbot to crash on startup.
      *
      * @return the loaded tasks, or an empty list if there is nothing saved yet
+     * @throws ClearblueException if the save file exists but could not be read
      */
-    public static List<Task> load() {
+    public static List<Task> load() throws ClearblueException {
         List<Task> tasks = new ArrayList<>();
         if (!Files.exists(DATA_FILE)) {
             return tasks;
@@ -57,8 +59,7 @@ public class Storage {
         try {
             lines = Files.readAllLines(DATA_FILE);
         } catch (IOException exception) {
-            System.out.println("     OOPS!!! Could not load saved tasks: " + exception.getMessage());
-            return tasks;
+            throw new ClearblueException("Could not load saved tasks: " + exception.getMessage(), exception);
         }
 
         for (String line : lines) {

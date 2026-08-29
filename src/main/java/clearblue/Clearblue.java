@@ -16,7 +16,13 @@ public class Clearblue {
      */
     public static void main(String[] args) {
         Ui ui = new Ui();
-        TaskList tasks = new TaskList(Storage.load());
+        TaskList tasks;
+        try {
+            tasks = new TaskList(Storage.load());
+        } catch (ClearblueException exception) {
+            ui.showError(exception.getMessage());
+            tasks = new TaskList();
+        }
 
         ui.showWelcome();
 
@@ -136,7 +142,7 @@ public class Clearblue {
     private static void addTask(TaskList tasks, Ui ui, Task task) {
         tasks.add(task);
         ui.showTaskAdded(task, tasks.size());
-        Storage.save(tasks.asList());
+        saveQuietly(tasks, ui);
     }
 
     /**
@@ -162,7 +168,7 @@ public class Clearblue {
             task.markAsNotDone();
         }
         ui.showTaskStatusChanged(task, isMarkCommand);
-        Storage.save(tasks.asList());
+        saveQuietly(tasks, ui);
     }
 
     /**
@@ -181,7 +187,22 @@ public class Clearblue {
 
         Task removedTask = tasks.remove(taskIndex);
         ui.showTaskRemoved(removedTask, tasks.size());
-        Storage.save(tasks.asList());
+        saveQuietly(tasks, ui);
+    }
+
+    /**
+     * Saves the task list, reporting a failure through {@code ui} instead
+     * of letting it crash the chatbot.
+     *
+     * @param tasks task list to save
+     * @param ui user interface to report a failure through
+     */
+    private static void saveQuietly(TaskList tasks, Ui ui) {
+        try {
+            Storage.save(tasks.asList());
+        } catch (ClearblueException exception) {
+            ui.showError(exception.getMessage());
+        }
     }
 
     /**
