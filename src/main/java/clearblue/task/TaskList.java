@@ -103,6 +103,24 @@ public class TaskList {
         return matches;
     }
 
+    /**
+     * Returns the tasks whose description contains {@code keyword},
+     * matched case-insensitively.
+     *
+     * @param keyword text to search for within each task's description
+     * @return matching tasks, in list order
+     */
+    public List<Task> getTasksContaining(String keyword) {
+        String lowerCaseKeyword = keyword.toLowerCase();
+        List<Task> matches = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.getDescription().toLowerCase().contains(lowerCaseKeyword)) {
+                matches.add(task);
+            }
+        }
+        return matches;
+    }
+
     private static boolean isOnDate(Task task, LocalDate queryDate) {
         if (task instanceof Deadline deadline) {
             return deadline.getBy().isDate() && deadline.getBy().getDate().equals(queryDate);

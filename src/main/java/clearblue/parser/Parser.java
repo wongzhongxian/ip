@@ -7,6 +7,7 @@ import clearblue.command.AddCommand;
 import clearblue.command.Command;
 import clearblue.command.DeleteCommand;
 import clearblue.command.ExitCommand;
+import clearblue.command.FindCommand;
 import clearblue.command.ListCommand;
 import clearblue.command.MarkCommand;
 import clearblue.command.OnCommand;
@@ -21,7 +22,7 @@ import clearblue.task.Todo;
  */
 public class Parser {
     private static final String UNKNOWN_COMMAND_MESSAGE = "I don't recognize that command. "
-            + "Try todo, deadline, event, list, mark, unmark, delete, on, or bye.";
+            + "Try todo, deadline, event, list, mark, unmark, delete, on, find, or bye.";
 
     /**
      * Parses one command line into a {@link Command}.
@@ -44,6 +45,7 @@ public class Parser {
         case UNMARK -> parseMarkOrUnmark(arguments, false);
         case DELETE -> new DeleteCommand(parseTaskNumber(arguments, "delete"));
         case ON -> parseOn(arguments);
+        case FIND -> parseFind(arguments);
         case TODO -> parseTodo(arguments);
         case DEADLINE -> parseDeadline(arguments);
         case EVENT -> parseEvent(arguments);
@@ -91,6 +93,13 @@ public class Parser {
             throw new ClearblueException("The date must be in yyyy-MM-dd format. Example: on 2019-06-06");
         }
         return new OnCommand(queryDate);
+    }
+
+    private static Command parseFind(String arguments) throws ClearblueException {
+        if (arguments.isEmpty()) {
+            throw new ClearblueException("Tell me what to search for. Example: find book");
+        }
+        return new FindCommand(arguments);
     }
 
     private static Command parseTodo(String arguments) throws ClearblueException {

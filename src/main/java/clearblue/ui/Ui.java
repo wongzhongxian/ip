@@ -87,7 +87,7 @@ public class Ui {
      */
     public void showUnknownCommand() {
         showError("I don't recognize that command. "
-                + "Try todo, deadline, event, list, mark, unmark, delete, on, or bye.");
+                + "Try todo, deadline, event, list, mark, unmark, delete, on, find, or bye.");
     }
 
     /**
@@ -165,6 +165,29 @@ public class Ui {
      */
     public void showTasksOnDate(List<Task> matches, String displayDate) {
         System.out.println("     Here are the deadlines and events on " + displayDate + ":");
+        for (int i = 0; i < matches.size(); i++) {
+            System.out.println("     " + (i + 1) + "." + matches.get(i));
+        }
+    }
+
+    /**
+     * Prints a message noting that no task's description contains the
+     * given keyword.
+     *
+     * @param keyword text that was searched for
+     */
+    public void showNoMatchingTasks(String keyword) {
+        System.out.println("     No tasks in your list match \"" + keyword + "\".");
+    }
+
+    /**
+     * Prints the tasks whose description contains the search keyword,
+     * numbered from 1.
+     *
+     * @param matches matching tasks
+     */
+    public void showMatchingTasks(List<Task> matches) {
+        System.out.println("     Here are the matching tasks in your list:");
         for (int i = 0; i < matches.size(); i++) {
             System.out.println("     " + (i + 1) + "." + matches.get(i));
         }

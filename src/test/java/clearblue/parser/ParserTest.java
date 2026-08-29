@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ import clearblue.command.AddCommand;
 import clearblue.command.Command;
 import clearblue.command.DeleteCommand;
 import clearblue.command.ExitCommand;
+import clearblue.command.FindCommand;
 import clearblue.command.ListCommand;
 import clearblue.command.MarkCommand;
 import clearblue.command.OnCommand;
@@ -183,6 +186,35 @@ public class ParserTest {
     }
 
     @Test
+    public void parse_find_printsOnlyTasksContainingKeyword() throws ClearblueException {
+        TaskList tasks = new TaskList();
+        Parser.parse("todo read book").execute(tasks, new Ui(), newStorage());
+        Parser.parse("todo return laptop").execute(tasks, new Ui(), newStorage());
+
+        Command command = Parser.parse("find book");
+        assertInstanceOf(FindCommand.class, command);
+
+        ByteArrayOutputStream capturedOutput = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        System.setOut(new PrintStream(capturedOutput));
+        try {
+            command.execute(tasks, new Ui(), newStorage());
+        } finally {
+            System.setOut(originalOut);
+        }
+
+        String output = capturedOutput.toString();
+        assertTrue(output.contains("read book"));
+        assertTrue(!output.contains("return laptop"));
+    }
+
+    @Test
+    public void parse_findMissingKeyword_throwsWithExample() {
+        ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse("find"));
+        assertEquals("Tell me what to search for. Example: find book", exception.getMessage());
+    }
+
+    @Test
     public void parse_byeWithNoArguments_returnsExitCommand() throws ClearblueException {
         assertInstanceOf(ExitCommand.class, Parser.parse("bye"));
     }
@@ -203,7 +235,8 @@ public class ParserTest {
     public void parse_unrecognizedWord_throwsUnknownCommandMessage() {
         ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse("blah"));
         assertEquals(
-                "I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, or bye.",
+                "I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, find, "
+                        + "or bye.",
                 exception.getMessage());
     }
 }
