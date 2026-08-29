@@ -1,4 +1,9 @@
-package clearblue;
+package clearblue.command;
+
+import clearblue.ClearblueException;
+import clearblue.storage.Storage;
+import clearblue.task.TaskList;
+import clearblue.ui.Ui;
 
 /**
  * Represents one user command: something a chatbot input line resolves to

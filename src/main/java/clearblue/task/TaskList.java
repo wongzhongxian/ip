@@ -1,4 +1,4 @@
-package clearblue;
+package clearblue.task;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

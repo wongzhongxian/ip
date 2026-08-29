@@ -1,5 +1,11 @@
 package clearblue;
 
+import clearblue.command.Command;
+import clearblue.parser.Parser;
+import clearblue.storage.Storage;
+import clearblue.task.TaskList;
+import clearblue.ui.Ui;
+
 /**
  * Runs the Clearblue chatbot and responds to task-management commands.
  */

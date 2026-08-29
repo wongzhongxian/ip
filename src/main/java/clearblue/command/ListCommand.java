@@ -1,4 +1,8 @@
-package clearblue;
+package clearblue.command;
+
+import clearblue.storage.Storage;
+import clearblue.task.TaskList;
+import clearblue.ui.Ui;
 
 /**
  * Prints all tasks in the list, or reports that the list is empty.
