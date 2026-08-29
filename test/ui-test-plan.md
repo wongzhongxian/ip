@@ -165,13 +165,13 @@ bye
      OOPS!!! A todo needs a description after "todo".
     ____________________________________________________________
     ____________________________________________________________
-     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, or bye.
+     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, find, or bye.
     ____________________________________________________________
     ____________________________________________________________
-     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, or bye.
+     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, find, or bye.
     ____________________________________________________________
     ____________________________________________________________
-     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, or bye.
+     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, find, or bye.
     ____________________________________________________________
     ____________________________________________________________
      Your task list is empty.
@@ -613,6 +613,96 @@ bye
     ____________________________________________________________
     ____________________________________________________________
      OOPS!!! Tell me which date to check. Example: on 2019-06-06
+    ____________________________________________________________
+    ____________________________________________________________
+     Bye. Hope to see you again soon! :)
+    ____________________________________________________________
+```
+
+### TC-13: Find tasks by a keyword in their description
+
+**Aim:** Verify that `find` matches task descriptions case-insensitively across todos, deadlines, and events, and skips tasks that don't match.
+
+**Inputs:**
+```text
+todo read book
+deadline return book /by June 6th
+event project meeting /from Aug 6th 2pm /to 4pm
+find book
+bye
+```
+
+**Expected output:**
+```text
+   ________                __    __
+  / ____/ /__  ____ ______/ /_  / /_  _____
+ / /   / / _ \/ __ `/ ___/ __ \/ / / / / _ \
+/ /___/ /  __/ /_/ / /  / /_/ / / /_/ /  __/
+\____/_/\___/\__,_/_/  /_.___/_/\__,_/\___/
+
+    ____________________________________________________________
+     Hello! I'm Clearblue.
+     What can I do for you? :)
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] read book
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [D][ ] return book (by: June 6th)
+     Now you have 2 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+     Now you have 3 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Here are the matching tasks in your list:
+     1.[T][ ] read book
+     2.[D][ ] return book (by: June 6th)
+    ____________________________________________________________
+    ____________________________________________________________
+     Bye. Hope to see you again soon! :)
+    ____________________________________________________________
+```
+
+### TC-14: Reject a missing find keyword and report no matches
+
+**Aim:** Verify that `find` with no keyword produces a helpful error, and that a keyword matching nothing reports there are no matches rather than crashing.
+
+**Inputs:**
+```text
+todo read book
+find xyz
+find
+bye
+```
+
+**Expected output:**
+```text
+   ________                __    __
+  / ____/ /__  ____ ______/ /_  / /_  _____
+ / /   / / _ \/ __ `/ ___/ __ \/ / / / / _ \
+/ /___/ /  __/ /_/ / /  / /_/ / / /_/ /  __/
+\____/_/\___/\__,_/_/  /_.___/_/\__,_/\___/
+
+    ____________________________________________________________
+     Hello! I'm Clearblue.
+     What can I do for you? :)
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] read book
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     No tasks in your list match "xyz".
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! Tell me what to search for. Example: find book
     ____________________________________________________________
     ____________________________________________________________
      Bye. Hope to see you again soon! :)
