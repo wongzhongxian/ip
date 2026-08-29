@@ -42,24 +42,8 @@ Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
 
-Follow [SE-EDU Git conventions](https://se-education.org/guides/conventions/git.html):
-
-* Commit subject: imperative mood, capitalized, no trailing period, aim for ≤50 characters (hard limit 72).
-* Commit body: separated from the subject by a blank line, wrapped at 72 characters, explains *what* changed
-  and *why* (not *how* — that's what the diff is for).
-* Branch names: kebab-case keywords (e.g. `refactor-ui-tests`); for issue-related branches, use
-  `issueNumber-keywords-from-title`.
+Follow the `seedu-git-standard` skill for commit message format and branch naming, for every commit.
 
 ## Java coding conventions
 
-Follow [SE-EDU Java (Intermediate) conventions](https://se-education.org/guides/conventions/java/intermediate.html):
-
-* Naming: PascalCase classes, camelCase methods/variables, SCREAMING_SNAKE_CASE constants; boolean
-  names/methods prefixed with `is`/`has`/`was`/`can`/`should`; never keep an abbreviation uppercase inside a
-  name (`exportHtmlSource`, not `exportHTMLSource`).
-* Every class belongs in a package (no default package).
-* 4-space indentation, no tabs; line length soft limit 110 characters, hard limit 120; K&R brace style
-  (opening brace on the same line); always brace loop and if/else bodies, even for a single statement.
-* Javadoc is required on public classes and methods (short-summary first sentence, blank line before
-  `@param`/`@return`, `@param` included for all parameters or none); optional for simple getters/setters,
-  overridden methods, and test code.
+Follow the `seedu-java-coding-standard` skill for all Java code written or edited in this project.
