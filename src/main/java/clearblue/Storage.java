@@ -89,10 +89,11 @@ public class Storage {
         if (task instanceof Todo) {
             return String.join(FIELD_SEPARATOR, "T", doneFlag, task.getDescription());
         } else if (task instanceof Deadline deadline) {
-            return String.join(FIELD_SEPARATOR, "D", doneFlag, deadline.getDescription(), deadline.getBy());
+            return String.join(FIELD_SEPARATOR, "D", doneFlag, deadline.getDescription(),
+                    deadline.getBy().toStorageString());
         } else if (task instanceof Event event) {
             return String.join(FIELD_SEPARATOR, "E", doneFlag, event.getDescription(),
-                    event.getFrom(), event.getTo());
+                    event.getFrom().toStorageString(), event.getTo().toStorageString());
         }
         throw new IllegalArgumentException("Unknown task type: " + task.getClass());
     }
