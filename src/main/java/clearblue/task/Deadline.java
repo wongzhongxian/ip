@@ -28,6 +28,12 @@ public class Deadline extends Task {
         return by;
     }
 
+    /**
+     * Returns this deadline's display text, e.g.
+     * {@code "[D][X] return book (by: Jun 06 2019)"}.
+     *
+     * @return display text for this deadline
+     */
     @Override
     public String toString() {
         return "[D]" + super.toString() + " (by: " + by + ")";

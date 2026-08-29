@@ -103,6 +103,15 @@ public class TaskList {
         return matches;
     }
 
+    /**
+     * Checks whether a task falls on the given date: a deadline matches on
+     * its {@code by} date, an event on either its {@code from} or
+     * {@code to} date, and a todo never matches (it carries no date).
+     *
+     * @param task task to check
+     * @param queryDate date to match against
+     * @return {@code true} if the task falls on that date
+     */
     private static boolean isOnDate(Task task, LocalDate queryDate) {
         if (task instanceof Deadline deadline) {
             return deadline.getBy().isDate() && deadline.getBy().getDate().equals(queryDate);

@@ -22,6 +22,16 @@ public class DeleteCommand extends Command {
         this.taskNumber = taskNumber;
     }
 
+    /**
+     * Removes the task at this command's task number from {@code tasks},
+     * reports it through {@code ui}, and saves the updated list via
+     * {@code storage}.
+     *
+     * @param tasks task list to remove from
+     * @param ui user interface to report through
+     * @param storage storage to persist the change through
+     * @throws ClearblueException if the task number is invalid, or saving fails
+     */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws ClearblueException {
         int taskIndex = requireValidIndex(tasks, taskNumber, "delete");

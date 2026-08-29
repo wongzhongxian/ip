@@ -13,6 +13,11 @@ public class Todo extends Task {
         super(description);
     }
 
+    /**
+     * Returns this todo's display text, e.g. {@code "[T][X] read book"}.
+     *
+     * @return display text for this todo
+     */
     @Override
     public String toString() {
         return "[T]" + super.toString();

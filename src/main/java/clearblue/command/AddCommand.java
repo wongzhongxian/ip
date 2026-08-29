@@ -21,6 +21,15 @@ public class AddCommand extends Command {
         this.task = task;
     }
 
+    /**
+     * Adds the wrapped task to {@code tasks}, reports it through
+     * {@code ui}, and saves the updated list via {@code storage}.
+     *
+     * @param tasks task list to add to
+     * @param ui user interface to report through
+     * @param storage storage to persist the change through
+     * @throws ClearblueException if saving fails
+     */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws ClearblueException {
         tasks.add(task);

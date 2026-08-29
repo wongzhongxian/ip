@@ -25,6 +25,15 @@ public class OnCommand extends Command {
         this.queryDate = queryDate;
     }
 
+    /**
+     * Prints the deadlines/events in {@code tasks} matching this command's
+     * date, or reports that there are none. Reads only; does not modify or
+     * save {@code tasks}.
+     *
+     * @param tasks task list to search
+     * @param ui user interface to report through
+     * @param storage unused
+     */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) {
         List<Task> matches = tasks.getTasksOnDate(queryDate);

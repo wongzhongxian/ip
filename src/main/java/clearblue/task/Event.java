@@ -41,6 +41,12 @@ public class Event extends Task {
         return to;
     }
 
+    /**
+     * Returns this event's display text, e.g.
+     * {@code "[E][X] trip (from: Jun 06 2019 to: Jun 08 2019)"}.
+     *
+     * @return display text for this event
+     */
     @Override
     public String toString() {
         return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";

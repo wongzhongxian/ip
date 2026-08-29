@@ -25,6 +25,15 @@ public class MarkCommand extends Command {
         this.isDone = isDone;
     }
 
+    /**
+     * Marks or unmarks the task at this command's task number, reports it
+     * through {@code ui}, and saves the updated list via {@code storage}.
+     *
+     * @param tasks task list containing the target task
+     * @param ui user interface to report through
+     * @param storage storage to persist the change through
+     * @throws ClearblueException if the task number is invalid, or saving fails
+     */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws ClearblueException {
         String action = isDone ? "mark" : "unmark";
