@@ -7,6 +7,7 @@ import argparse
 import difflib
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -100,6 +101,18 @@ def check_java_version(required_major: str) -> None:
         )
 
 
+def reset_persisted_state(working_directory: Path) -> None:
+    """Delete Clearblue's saved-task data folder so the next run starts empty.
+
+    The plan guarantees each test case sees a fresh process with an empty
+    task list, but Clearblue now persists tasks to data/clearblue.txt across
+    runs. Removing that folder before every case keeps the guarantee true.
+    """
+    data_directory = working_directory / "data"
+    if data_directory.exists():
+        shutil.rmtree(data_directory)
+
+
 def run_shell(command: str, working_directory: Path, **kwargs: object) -> subprocess.CompletedProcess[str]:
     """Run a configured plan command through zsh."""
     return subprocess.run(
@@ -163,6 +176,8 @@ def run_tests(plan_path: Path) -> int:
             console_input = test_case.inputs + "\n"
             print_text_block("Console input", console_input)
 
+            reset_persisted_state(working_directory)
+
             try:
                 result = run_shell(
                     run_command,
@@ -212,6 +227,8 @@ def run_tests(plan_path: Path) -> int:
                 return 1
 
             print("RESULT: PASS")
+
+        reset_persisted_state(working_directory)
 
     print(f"\nTEST SESSION PASSED: {len(test_cases)} of {len(test_cases)} cases passed.")
     return 0
