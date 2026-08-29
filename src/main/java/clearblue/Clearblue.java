@@ -1,5 +1,8 @@
 package clearblue;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -61,6 +64,18 @@ public class Clearblue {
             case MARK -> updateTaskStatus(tasks, taskCount, commandArguments, true);
             case UNMARK -> updateTaskStatus(tasks, taskCount, commandArguments, false);
             case DELETE -> taskCount = deleteTask(tasks, taskCount, commandArguments);
+            case ON -> {
+                if (commandArguments.isEmpty()) {
+                    printError("Tell me which date to check. Example: on 2019-06-06");
+                } else {
+                    LocalDate queryDate = TaskDateTime.parseDate(commandArguments);
+                    if (queryDate == null) {
+                        printError("The date must be in yyyy-MM-dd format. Example: on 2019-06-06");
+                    } else {
+                        printTasksOnDate(tasks, taskCount, queryDate);
+                    }
+                }
+            }
             case TODO -> {
                 if (commandArguments.isEmpty()) {
                     printError("A todo needs a description after \"todo\".");
@@ -282,6 +297,53 @@ public class Clearblue {
      */
     private static void printUnknownCommand() {
         printError("I don't recognize that command. "
-                + "Try todo, deadline, event, list, mark, unmark, delete, or bye.");
+                + "Try todo, deadline, event, list, mark, unmark, delete, on, or bye.");
+    }
+
+    /**
+     * Prints the deadlines and events whose date matches {@code queryDate}.
+     * A deadline matches on its {@code by} date; an event matches if either
+     * its {@code from} or {@code to} date matches. Todos never match, since
+     * they carry no date.
+     *
+     * @param tasks task storage
+     * @param taskCount number of tasks currently stored
+     * @param queryDate date to match against
+     */
+    private static void printTasksOnDate(Task[] tasks, int taskCount, LocalDate queryDate) {
+        List<Task> matches = new ArrayList<>();
+        for (int i = 0; i < taskCount; i++) {
+            if (isOnDate(tasks[i], queryDate)) {
+                matches.add(tasks[i]);
+            }
+        }
+
+        String displayDate = TaskDateTime.formatDate(queryDate);
+        if (matches.isEmpty()) {
+            System.out.println("     There are no deadlines or events on " + displayDate + ".");
+            return;
+        }
+
+        System.out.println("     Here are the deadlines and events on " + displayDate + ":");
+        for (int i = 0; i < matches.size(); i++) {
+            System.out.println("     " + (i + 1) + "." + matches.get(i));
+        }
+    }
+
+    /**
+     * Checks whether a task falls on the given date.
+     *
+     * @param task task to check
+     * @param queryDate date to match against
+     * @return {@code true} if the task is a deadline or event on that date
+     */
+    private static boolean isOnDate(Task task, LocalDate queryDate) {
+        if (task instanceof Deadline deadline) {
+            return deadline.getBy().isDate() && deadline.getBy().getDate().equals(queryDate);
+        } else if (task instanceof Event event) {
+            return (event.getFrom().isDate() && event.getFrom().getDate().equals(queryDate))
+                    || (event.getTo().isDate() && event.getTo().getDate().equals(queryDate));
+        }
+        return false;
     }
 }

@@ -52,9 +52,53 @@ public class TaskDateTime {
         return rawText;
     }
 
+    /**
+     * Returns whether this value was recognized as a real calendar date.
+     *
+     * @return {@code true} if the original text parsed as {@code yyyy-MM-dd}
+     */
+    public boolean isDate() {
+        return date != null;
+    }
+
+    /**
+     * Returns the parsed date.
+     *
+     * @return the underlying {@link LocalDate}
+     * @throws IllegalStateException if this value did not parse as a date
+     */
+    public LocalDate getDate() {
+        if (date == null) {
+            throw new IllegalStateException("\"" + rawText + "\" is not a recognized date");
+        }
+        return date;
+    }
+
     @Override
     public String toString() {
         return toDisplayString();
+    }
+
+    /**
+     * Parses text as a {@code yyyy-MM-dd} date, using the same format
+     * accepted for {@code /by}, {@code /from}, and {@code /to} values.
+     *
+     * @param text text to parse
+     * @return the parsed date, or {@code null} if it does not match the format
+     */
+    public static LocalDate parseDate(String text) {
+        return parseOrNull(text);
+    }
+
+    /**
+     * Formats a date the same way a recognized {@code /by}, {@code /from},
+     * or {@code /to} value is displayed.
+     *
+     * @param date date to format
+     * @return formatted text, e.g. {@code Jun 06 2019}
+     */
+    public static String formatDate(LocalDate date) {
+        return date.format(DISPLAY_FORMAT);
     }
 
     private static LocalDate parseOrNull(String text) {
