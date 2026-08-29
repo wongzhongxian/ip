@@ -165,13 +165,13 @@ bye
      OOPS!!! A todo needs a description after "todo".
     ____________________________________________________________
     ____________________________________________________________
-     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.
+     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, or bye.
     ____________________________________________________________
     ____________________________________________________________
-     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.
+     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, or bye.
     ____________________________________________________________
     ____________________________________________________________
-     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, or bye.
+     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, or bye.
     ____________________________________________________________
     ____________________________________________________________
      Your task list is empty.
@@ -519,6 +519,100 @@ bye
      Here are the tasks in your list:
      1.[D][ ] homework (by: no idea :-p)
      2.[E][ ] meeting (from: Mon 2pm to: 4pm)
+    ____________________________________________________________
+    ____________________________________________________________
+     Bye. Hope to see you again soon! :)
+    ____________________________________________________________
+```
+
+### TC-11: List deadlines and events on a specific date
+
+**Aim:** Verify that `on` lists deadlines/events whose `by`, `from`, or `to` date matches the given date, and skips a todo and a non-matching date.
+
+**Inputs:**
+```text
+deadline return book /by 2019-06-06
+event trip /from 2019-06-06 /to 2019-06-08
+todo unrelated
+on 2019-06-06
+bye
+```
+
+**Expected output:**
+```text
+   ________                __    __
+  / ____/ /__  ____ ______/ /_  / /_  _____
+ / /   / / _ \/ __ `/ ___/ __ \/ / / / / _ \
+/ /___/ /  __/ /_/ / /  / /_/ / / /_/ /  __/
+\____/_/\___/\__,_/_/  /_.___/_/\__,_/\___/
+
+    ____________________________________________________________
+     Hello! I'm Clearblue.
+     What can I do for you? :)
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [D][ ] return book (by: Jun 06 2019)
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [E][ ] trip (from: Jun 06 2019 to: Jun 08 2019)
+     Now you have 2 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] unrelated
+     Now you have 3 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Here are the deadlines and events on Jun 06 2019:
+     1.[D][ ] return book (by: Jun 06 2019)
+     2.[E][ ] trip (from: Jun 06 2019 to: Jun 08 2019)
+    ____________________________________________________________
+    ____________________________________________________________
+     Bye. Hope to see you again soon! :)
+    ____________________________________________________________
+```
+
+### TC-12: Reject invalid or missing `on` command input
+
+**Aim:** Verify that `on` with no matching tasks, a non-`yyyy-MM-dd` date, or no date argument all produce the correct message without crashing.
+
+**Inputs:**
+```text
+deadline return book /by 2019-06-06
+on 2020-01-01
+on not-a-date
+on
+bye
+```
+
+**Expected output:**
+```text
+   ________                __    __
+  / ____/ /__  ____ ______/ /_  / /_  _____
+ / /   / / _ \/ __ `/ ___/ __ \/ / / / / _ \
+/ /___/ /  __/ /_/ / /  / /_/ / / /_/ /  __/
+\____/_/\___/\__,_/_/  /_.___/_/\__,_/\___/
+
+    ____________________________________________________________
+     Hello! I'm Clearblue.
+     What can I do for you? :)
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [D][ ] return book (by: Jun 06 2019)
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     There are no deadlines or events on Jan 01 2020.
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! The date must be in yyyy-MM-dd format. Example: on 2019-06-06
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! Tell me which date to check. Example: on 2019-06-06
     ____________________________________________________________
     ____________________________________________________________
      Bye. Hope to see you again soon! :)
