@@ -8,8 +8,8 @@ This plan contains exact-output regression tests for Clearblue's command-line in
 
 - **Working directory:** `.`
 - **Required Java major version:** `25`
-- **Compile command:** `javac -d {classes_dir} src/main/java/*.java`
-- **Run command:** `java -cp {classes_dir} Clearblue`
+- **Compile command:** `javac -d {classes_dir} src/main/java/clearblue/*.java`
+- **Run command:** `java -cp {classes_dir} clearblue.Clearblue`
 - **Timeout seconds:** `10`
 - **Comparison:** Standard output is compared line-for-line. CRLF and LF are treated equally, and one final newline is ignored. Any standard-error output fails the case.
 

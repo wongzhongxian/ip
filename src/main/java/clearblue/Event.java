@@ -1,3 +1,5 @@
+package clearblue;
+
 /**
  * Represents a task that takes place between a start and an end date or time.
  */
@@ -18,10 +20,20 @@ public class Event extends Task {
         this.to = to;
     }
 
+    /**
+     * Returns the date or time when this event starts.
+     *
+     * @return the event's {@code from} value
+     */
     public String getFrom() {
         return from;
     }
 
+    /**
+     * Returns the date or time when this event ends.
+     *
+     * @return the event's {@code to} value
+     */
     public String getTo() {
         return to;
     }

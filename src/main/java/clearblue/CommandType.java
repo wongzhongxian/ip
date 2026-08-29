@@ -1,3 +1,5 @@
+package clearblue;
+
 /**
  * Identifies the fixed set of commands understood by Clearblue.
  */

@@ -1,3 +1,5 @@
+package clearblue;
+
 import java.util.Scanner;
 
 /**
@@ -7,6 +9,13 @@ public class Clearblue {
     private static final String DIVIDER = "    ____________________________________________________________";
     private static final int MAX_TASKS = 100;
 
+    /**
+     * Starts the chatbot: prints the banner and greeting, then reads and
+     * responds to commands from standard input until a {@code bye} command
+     * is received.
+     *
+     * @param args unused
+     */
     public static void main(String[] args) {
         String banner = "   ________                __    __\n"
                 + "  / ____/ /__  ____ ______/ /_  / /_  _____\n"
