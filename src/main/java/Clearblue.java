@@ -152,6 +152,7 @@ public class Clearblue {
         tasks[taskCount] = task;
         int newTaskCount = taskCount + 1;
         printTaskAdded(task, newTaskCount);
+        Storage.save(tasks, newTaskCount);
         return newTaskCount;
     }
 
@@ -180,6 +181,7 @@ public class Clearblue {
             System.out.println("     OK, I've marked this task as not done yet:");
         }
         System.out.println("       " + task);
+        Storage.save(tasks, taskCount);
     }
 
     /**
@@ -206,6 +208,7 @@ public class Clearblue {
         System.out.println("     Noted. I've removed this task:");
         System.out.println("       " + removedTask);
         System.out.println("     Now you have " + newTaskCount + " tasks in the list.");
+        Storage.save(tasks, newTaskCount);
         return newTaskCount;
     }
 
