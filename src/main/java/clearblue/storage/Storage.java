@@ -51,7 +51,8 @@ public class Storage {
             }
             Files.write(dataFile, lines);
         } catch (IOException exception) {
-            throw new ClearblueException("Could not save tasks to disk: " + exception.getMessage(), exception);
+            throw new ClearblueException(
+                    "Could not save tasks to disk: " + exception.getMessage(), exception);
         }
     }
 
