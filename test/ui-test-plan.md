@@ -2,6 +2,8 @@
 
 This plan contains exact-output regression tests for Clearblue's command-line interface. Each test case runs in a fresh program process with an empty task list.
 
+**Persistence note:** Clearblue saves tasks to `data/clearblue.txt` on every change and loads them on startup. Because every test case here starts a fresh process in the same working directory, the runner (`run_ui_tests.py`) deletes the `data/` folder before each case so the "empty task list" guarantee above still holds — none of the cases below exercise save/load behavior directly. Cross-restart persistence (a second process picking up a first process's saved tasks) and corrupted/missing-file handling were verified manually, since this runner executes only one process per case and cannot restart with retained state mid-case.
+
 ## Configuration
 
 - **Working directory:** `.`
