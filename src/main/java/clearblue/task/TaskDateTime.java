@@ -83,6 +83,11 @@ public class TaskDateTime {
         return date;
     }
 
+    /**
+     * Returns this value formatted for display; same as {@link #toDisplayString()}.
+     *
+     * @return display text
+     */
     @Override
     public String toString() {
         return toDisplayString();
@@ -110,6 +115,14 @@ public class TaskDateTime {
         return date.format(DISPLAY_FORMAT);
     }
 
+    /**
+     * Parses text as {@link #INPUT_FORMAT}, swallowing a parse failure into
+     * {@code null} rather than propagating it, since unparseable text is
+     * valid free-form input here rather than an error.
+     *
+     * @param text text to parse
+     * @return the parsed date, or {@code null} if it does not match the format
+     */
     private static LocalDate parseOrNull(String text) {
         try {
             return LocalDate.parse(text, INPUT_FORMAT);

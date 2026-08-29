@@ -54,6 +54,13 @@ public class Parser {
         };
     }
 
+    /**
+     * Returns the part of a command that follows its command word.
+     *
+     * @param command complete command entered by the user
+     * @param commandType parsed command type
+     * @return trimmed command arguments, or the original input for an unknown command
+     */
     private static String parseArguments(String command, CommandType commandType) {
         if (commandType == CommandType.UNKNOWN) {
             return command;
@@ -61,6 +68,13 @@ public class Parser {
         return command.substring(commandType.getCommandWord().length()).trim();
     }
 
+    /**
+     * Parses the arguments for a {@code list} command.
+     *
+     * @param arguments text following the {@code list} command word
+     * @return a {@link ListCommand}
+     * @throws ClearblueException if extra arguments were given
+     */
     private static Command parseList(String arguments) throws ClearblueException {
         if (!arguments.isEmpty()) {
             throw new ClearblueException(UNKNOWN_COMMAND_MESSAGE);
@@ -68,11 +82,27 @@ public class Parser {
         return new ListCommand();
     }
 
+    /**
+     * Parses the arguments for a {@code mark} or {@code unmark} command.
+     *
+     * @param arguments text following the command word
+     * @param isDone {@code true} for {@code mark}, {@code false} for {@code unmark}
+     * @return a {@link MarkCommand} for the parsed task number
+     * @throws ClearblueException if the task number is missing or not a whole number
+     */
     private static Command parseMarkOrUnmark(String arguments, boolean isDone) throws ClearblueException {
         String action = isDone ? "mark" : "unmark";
         return new MarkCommand(parseTaskNumber(arguments, action), isDone);
     }
 
+    /**
+     * Parses a one-based task number from raw argument text.
+     *
+     * @param arguments text expected to hold just a task number
+     * @param action operation that will use the number, for the error message
+     * @return the parsed task number
+     * @throws ClearblueException if the text is missing or not a whole number
+     */
     private static int parseTaskNumber(String arguments, String action) throws ClearblueException {
         if (arguments.isEmpty()) {
             throw new ClearblueException("Tell me which task to " + action + ". Example: " + action + " 1");
@@ -84,6 +114,13 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses the arguments for an {@code on} command.
+     *
+     * @param arguments text following the {@code on} command word
+     * @return an {@link OnCommand} for the parsed date
+     * @throws ClearblueException if the date is missing or not in {@code yyyy-MM-dd} format
+     */
     private static Command parseOn(String arguments) throws ClearblueException {
         if (arguments.isEmpty()) {
             throw new ClearblueException("Tell me which date to check. Example: on 2019-06-06");
@@ -102,6 +139,13 @@ public class Parser {
         return new FindCommand(arguments);
     }
 
+    /**
+     * Parses the arguments for a {@code todo} command.
+     *
+     * @param arguments text following the {@code todo} command word
+     * @return an {@link AddCommand} wrapping the new {@code Todo}
+     * @throws ClearblueException if the description is empty
+     */
     private static Command parseTodo(String arguments) throws ClearblueException {
         if (arguments.isEmpty()) {
             throw new ClearblueException("A todo needs a description after \"todo\".");
@@ -109,6 +153,13 @@ public class Parser {
         return new AddCommand(new Todo(arguments));
     }
 
+    /**
+     * Parses the arguments for a {@code deadline} command.
+     *
+     * @param arguments text following the {@code deadline} command word
+     * @return an {@link AddCommand} wrapping the new {@code Deadline}
+     * @throws ClearblueException if the {@code /by} separator, description, or date/time is missing
+     */
     private static Command parseDeadline(String arguments) throws ClearblueException {
         int byIndex = arguments.indexOf("/by");
         if (byIndex < 0) {
@@ -128,6 +179,13 @@ public class Parser {
         return new AddCommand(new Deadline(description, by));
     }
 
+    /**
+     * Parses the arguments for an {@code event} command.
+     *
+     * @param arguments text following the {@code event} command word
+     * @return an {@link AddCommand} wrapping the new {@code Event}
+     * @throws ClearblueException if either separator, the description, or a time is missing
+     */
     private static Command parseEvent(String arguments) throws ClearblueException {
         int fromIndex = arguments.indexOf("/from");
         if (fromIndex < 0) {

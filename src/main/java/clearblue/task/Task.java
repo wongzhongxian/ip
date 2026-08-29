@@ -58,6 +58,11 @@ public class Task {
         isDone = false;
     }
 
+    /**
+     * Returns this task's status icon and description, e.g. {@code "[X] read book"}.
+     *
+     * @return display text for this task
+     */
     @Override
     public String toString() {
         return "[" + getStatusIcon() + "] " + description;
