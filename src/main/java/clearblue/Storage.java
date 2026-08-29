@@ -16,16 +16,15 @@ public class Storage {
     private static final String FIELD_SEPARATOR = " | ";
 
     /**
-     * Writes the current task list to {@link #DATA_FILE}, creating the
-     * containing folder first if it does not already exist.
+     * Writes the given tasks to {@link #DATA_FILE}, creating the containing
+     * folder first if it does not already exist.
      *
-     * @param tasks task storage
-     * @param taskCount number of tasks currently stored
+     * @param tasks tasks to save
      */
-    public static void save(Task[] tasks, int taskCount) {
+    public static void save(List<Task> tasks) {
         List<String> lines = new ArrayList<>();
-        for (int i = 0; i < taskCount; i++) {
-            lines.add(encode(tasks[i]));
+        for (Task task : tasks) {
+            lines.add(encode(task));
         }
 
         try {
@@ -40,18 +39,18 @@ public class Storage {
     }
 
     /**
-     * Loads previously saved tasks from {@link #DATA_FILE} into {@code tasks}.
-     * If the file or its folder does not exist yet (e.g. on a fresh
-     * install), this returns 0 without treating that as an error. Any line
-     * that cannot be parsed (corrupted data) is skipped instead of causing
-     * the chatbot to crash on startup.
+     * Loads previously saved tasks from {@link #DATA_FILE}. If the file or
+     * its folder does not exist yet (e.g. on a fresh install), this returns
+     * an empty list without treating that as an error. Any line that
+     * cannot be parsed (corrupted data) is skipped instead of causing the
+     * chatbot to crash on startup.
      *
-     * @param tasks task storage to fill
-     * @return number of tasks loaded
+     * @return the loaded tasks, or an empty list if there is nothing saved yet
      */
-    public static int load(Task[] tasks) {
+    public static List<Task> load() {
+        List<Task> tasks = new ArrayList<>();
         if (!Files.exists(DATA_FILE)) {
-            return 0;
+            return tasks;
         }
 
         List<String> lines;
@@ -59,21 +58,16 @@ public class Storage {
             lines = Files.readAllLines(DATA_FILE);
         } catch (IOException exception) {
             System.out.println("     OOPS!!! Could not load saved tasks: " + exception.getMessage());
-            return 0;
+            return tasks;
         }
 
-        int taskCount = 0;
         for (String line : lines) {
-            if (taskCount >= tasks.length) {
-                break;
-            }
             Task task = decode(line);
             if (task != null) {
-                tasks[taskCount] = task;
-                taskCount++;
+                tasks.add(task);
             }
         }
-        return taskCount;
+        return tasks;
     }
 
     /**
