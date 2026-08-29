@@ -7,23 +7,32 @@ import java.util.List;
  * Runs the Clearblue chatbot and responds to task-management commands.
  */
 public class Clearblue {
+    private final Ui ui;
+    private final Storage storage;
+    private TaskList tasks;
+
     /**
-     * Starts the chatbot: prints the banner and greeting, then reads and
-     * responds to commands from standard input until a {@code bye} command
-     * is received.
+     * Creates the chatbot, loading any previously saved tasks from the
+     * given file.
      *
-     * @param args unused
+     * @param filePath path to the save file, relative to the project root
      */
-    public static void main(String[] args) {
-        Ui ui = new Ui();
-        TaskList tasks;
+    public Clearblue(String filePath) {
+        ui = new Ui();
+        storage = new Storage(filePath);
         try {
-            tasks = new TaskList(Storage.load());
+            tasks = new TaskList(storage.load());
         } catch (ClearblueException exception) {
             ui.showError(exception.getMessage());
             tasks = new TaskList();
         }
+    }
 
+    /**
+     * Prints the banner and greeting, then reads and responds to commands
+     * from standard input until a {@code bye} command is received.
+     */
+    public void run() {
         ui.showWelcome();
 
         while (ui.hasNextCommand()) {
@@ -48,9 +57,9 @@ public class Clearblue {
                     ui.showTaskList(tasks);
                 }
             }
-            case MARK -> updateTaskStatus(tasks, ui, commandArguments, true);
-            case UNMARK -> updateTaskStatus(tasks, ui, commandArguments, false);
-            case DELETE -> deleteTask(tasks, ui, commandArguments);
+            case MARK -> updateTaskStatus(commandArguments, true);
+            case UNMARK -> updateTaskStatus(commandArguments, false);
+            case DELETE -> deleteTask(commandArguments);
             case ON -> {
                 if (commandArguments.isEmpty()) {
                     ui.showError("Tell me which date to check. Example: on 2019-06-06");
@@ -59,7 +68,7 @@ public class Clearblue {
                     if (queryDate == null) {
                         ui.showError("The date must be in yyyy-MM-dd format. Example: on 2019-06-06");
                     } else {
-                        showTasksOnDate(tasks, ui, queryDate);
+                        showTasksOnDate(queryDate);
                     }
                 }
             }
@@ -67,7 +76,7 @@ public class Clearblue {
                 if (commandArguments.isEmpty()) {
                     ui.showError("A todo needs a description after \"todo\".");
                 } else {
-                    addTask(tasks, ui, new Todo(commandArguments));
+                    addTask(new Todo(commandArguments));
                 }
             }
             case DEADLINE -> {
@@ -85,7 +94,7 @@ public class Clearblue {
                     } else if (by.isEmpty()) {
                         ui.showError("A deadline needs a date or time after /by.");
                     } else {
-                        addTask(tasks, ui, new Deadline(description, by));
+                        addTask(new Deadline(description, by));
                     }
                 }
             }
@@ -114,7 +123,7 @@ public class Clearblue {
                         } else if (to.isEmpty()) {
                             ui.showError("An event needs an end date or time after /to.");
                         } else {
-                            addTask(tasks, ui, new Event(description, from, to));
+                            addTask(new Event(description, from, to));
                         }
                     }
                 }
@@ -133,30 +142,35 @@ public class Clearblue {
     }
 
     /**
+     * Starts the chatbot.
+     *
+     * @param args unused
+     */
+    public static void main(String[] args) {
+        new Clearblue("data/clearblue.txt").run();
+    }
+
+    /**
      * Adds a task to the list, reports it to the user, and saves the list.
      *
-     * @param tasks task list to add to
-     * @param ui user interface to report through
      * @param task task to add
      */
-    private static void addTask(TaskList tasks, Ui ui, Task task) {
+    private void addTask(Task task) {
         tasks.add(task);
         ui.showTaskAdded(task, tasks.size());
-        saveQuietly(tasks, ui);
+        saveQuietly();
     }
 
     /**
      * Validates a task number, then marks or unmarks that task, reports it
      * to the user, and saves the list.
      *
-     * @param tasks task list to update
-     * @param ui user interface to report through
      * @param taskNumberText user-provided task number
      * @param isMarkCommand whether the task should be marked as done
      */
-    private static void updateTaskStatus(TaskList tasks, Ui ui, String taskNumberText, boolean isMarkCommand) {
+    private void updateTaskStatus(String taskNumberText, boolean isMarkCommand) {
         String action = isMarkCommand ? "mark" : "unmark";
-        int taskIndex = getValidTaskIndex(tasks.size(), taskNumberText, ui, action);
+        int taskIndex = getValidTaskIndex(taskNumberText, action);
         if (taskIndex < 0) {
             return;
         }
@@ -168,53 +182,35 @@ public class Clearblue {
             task.markAsNotDone();
         }
         ui.showTaskStatusChanged(task, isMarkCommand);
-        saveQuietly(tasks, ui);
+        saveQuietly();
     }
 
     /**
      * Validates a task number, then removes that task, reports it to the
      * user, and saves the list.
      *
-     * @param tasks task list to remove from
-     * @param ui user interface to report through
      * @param taskNumberText user-provided task number
      */
-    private static void deleteTask(TaskList tasks, Ui ui, String taskNumberText) {
-        int taskIndex = getValidTaskIndex(tasks.size(), taskNumberText, ui, "delete");
+    private void deleteTask(String taskNumberText) {
+        int taskIndex = getValidTaskIndex(taskNumberText, "delete");
         if (taskIndex < 0) {
             return;
         }
 
         Task removedTask = tasks.remove(taskIndex);
         ui.showTaskRemoved(removedTask, tasks.size());
-        saveQuietly(tasks, ui);
-    }
-
-    /**
-     * Saves the task list, reporting a failure through {@code ui} instead
-     * of letting it crash the chatbot.
-     *
-     * @param tasks task list to save
-     * @param ui user interface to report a failure through
-     */
-    private static void saveQuietly(TaskList tasks, Ui ui) {
-        try {
-            Storage.save(tasks.asList());
-        } catch (ClearblueException exception) {
-            ui.showError(exception.getMessage());
-        }
+        saveQuietly();
     }
 
     /**
      * Validates a user-provided task number for an operation.
      *
-     * @param taskCount number of tasks currently stored
      * @param taskNumberText user-provided task number
-     * @param ui user interface to report a validation error through
      * @param action operation that will use the selected task
      * @return zero-based task index, or {@code -1} when validation fails
      */
-    private static int getValidTaskIndex(int taskCount, String taskNumberText, Ui ui, String action) {
+    private int getValidTaskIndex(String taskNumberText, String action) {
+        int taskCount = tasks.size();
         if (taskCount == 0) {
             ui.showError("There are no tasks to " + action + ".");
             return -1;
@@ -245,17 +241,27 @@ public class Clearblue {
      * Reports the deadlines and events on the given date, or reports that
      * there are none.
      *
-     * @param tasks task list to search
-     * @param ui user interface to report through
      * @param queryDate date to match against
      */
-    private static void showTasksOnDate(TaskList tasks, Ui ui, LocalDate queryDate) {
+    private void showTasksOnDate(LocalDate queryDate) {
         List<Task> matches = tasks.getTasksOnDate(queryDate);
         String displayDate = TaskDateTime.formatDate(queryDate);
         if (matches.isEmpty()) {
             ui.showNoTasksOnDate(displayDate);
         } else {
             ui.showTasksOnDate(matches, displayDate);
+        }
+    }
+
+    /**
+     * Saves the task list, reporting a failure through {@code ui} instead
+     * of letting it crash the chatbot.
+     */
+    private void saveQuietly() {
+        try {
+            storage.save(tasks.asList());
+        } catch (ClearblueException exception) {
+            ui.showError(exception.getMessage());
         }
     }
 }

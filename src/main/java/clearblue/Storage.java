@@ -8,56 +8,66 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Saves tasks to, and loads tasks from, a fixed file on disk so that the
- * task list survives between runs of the chatbot.
+ * Saves tasks to, and loads tasks from, a file on disk so that the task
+ * list survives between runs of the chatbot.
  */
 public class Storage {
-    private static final Path DATA_FILE = Path.of("data", "clearblue.txt");
     private static final String FIELD_SEPARATOR = " | ";
 
+    private final Path dataFile;
+
     /**
-     * Writes the given tasks to {@link #DATA_FILE}, creating the containing
-     * folder first if it does not already exist.
+     * Creates a Storage backed by the given file.
+     *
+     * @param filePath path to the save file, relative to the project root
+     */
+    public Storage(String filePath) {
+        this.dataFile = Path.of(filePath);
+    }
+
+    /**
+     * Writes the given tasks to this Storage's file, creating the
+     * containing folder first if it does not already exist.
      *
      * @param tasks tasks to save
      * @throws ClearblueException if the tasks could not be written to disk
      */
-    public static void save(List<Task> tasks) throws ClearblueException {
+    public void save(List<Task> tasks) throws ClearblueException {
         List<String> lines = new ArrayList<>();
         for (Task task : tasks) {
             lines.add(encode(task));
         }
 
         try {
-            Path parentDirectory = DATA_FILE.getParent();
+            Path parentDirectory = dataFile.getParent();
             if (parentDirectory != null) {
                 Files.createDirectories(parentDirectory);
             }
-            Files.write(DATA_FILE, lines);
+            Files.write(dataFile, lines);
         } catch (IOException exception) {
             throw new ClearblueException("Could not save tasks to disk: " + exception.getMessage(), exception);
         }
     }
 
     /**
-     * Loads previously saved tasks from {@link #DATA_FILE}. If the file or
-     * its folder does not exist yet (e.g. on a fresh install), this returns
-     * an empty list without treating that as an error. Any line that
-     * cannot be parsed (corrupted data) is skipped instead of causing the
-     * chatbot to crash on startup.
+     * Loads previously saved tasks from this Storage's file. If the file
+     * or its folder does not exist yet (e.g. on a fresh install), this
+     * returns an empty list without treating that as an error. Any line
+     * that cannot be parsed (corrupted data) is skipped instead of causing
+     * the chatbot to crash on startup.
      *
      * @return the loaded tasks, or an empty list if there is nothing saved yet
      * @throws ClearblueException if the save file exists but could not be read
      */
-    public static List<Task> load() throws ClearblueException {
+    public List<Task> load() throws ClearblueException {
         List<Task> tasks = new ArrayList<>();
-        if (!Files.exists(DATA_FILE)) {
+        if (!Files.exists(dataFile)) {
             return tasks;
         }
 
         List<String> lines;
         try {
-            lines = Files.readAllLines(DATA_FILE);
+            lines = Files.readAllLines(dataFile);
         } catch (IOException exception) {
             throw new ClearblueException("Could not load saved tasks: " + exception.getMessage(), exception);
         }
