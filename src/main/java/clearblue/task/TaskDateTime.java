@@ -3,6 +3,7 @@ package clearblue.task;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 
 /**
  * Represents a deadline/event date-or-time value that may be a real
@@ -14,7 +15,15 @@ import java.time.format.DateTimeParseException;
  * as typed.
  */
 public class TaskDateTime {
-    private static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    // STRICT is required here: the default SMART resolver silently rolls an
+    // invalid calendar date (e.g. "2019-04-31", which April doesn't have)
+    // forward to the next valid date instead of rejecting it, which would
+    // silently reinterpret a user's mistyped date. The pattern uses "uuuu"
+    // (proleptic year) rather than "yyyy" (year-of-era) because STRICT
+    // resolution of "yyyy" needs an explicit era to resolve a year, which
+    // plain digits like "2019" never provide.
+    private static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ofPattern("uuuu-MM-dd")
+            .withResolverStyle(ResolverStyle.STRICT);
     private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM dd yyyy");
 
     private final String rawText;
