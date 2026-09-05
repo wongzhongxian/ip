@@ -40,17 +40,17 @@ public class Parser {
         }
 
         return switch (commandType) {
-        case LIST -> parseList(arguments);
-        case MARK -> parseMarkOrUnmark(arguments, true);
-        case UNMARK -> parseMarkOrUnmark(arguments, false);
-        case DELETE -> new DeleteCommand(parseTaskNumber(arguments, "delete"));
-        case ON -> parseOn(arguments);
-        case FIND -> parseFind(arguments);
-        case TODO -> parseTodo(arguments);
-        case DEADLINE -> parseDeadline(arguments);
-        case EVENT -> parseEvent(arguments);
-        case BYE, UNKNOWN -> throw new ClearblueException(
-                fullCommand.isEmpty() ? "Please enter a command." : UNKNOWN_COMMAND_MESSAGE);
+            case LIST -> parseList(arguments);
+            case MARK -> parseMarkOrUnmark(arguments, true);
+            case UNMARK -> parseMarkOrUnmark(arguments, false);
+            case DELETE -> new DeleteCommand(parseTaskNumber(arguments, "delete"));
+            case ON -> parseOn(arguments);
+            case FIND -> parseFind(arguments);
+            case TODO -> parseTodo(arguments);
+            case DEADLINE -> parseDeadline(arguments);
+            case EVENT -> parseEvent(arguments);
+            case BYE, UNKNOWN -> throw new ClearblueException(
+                    fullCommand.isEmpty() ? "Please enter a command." : UNKNOWN_COMMAND_MESSAGE);
         };
     }
 
