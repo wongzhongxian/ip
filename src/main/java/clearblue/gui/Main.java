@@ -15,6 +15,8 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
     private static final String SAVE_FILE_PATH = "data/clearblue.txt";
+    private static final double MIN_WINDOW_WIDTH = 417;
+    private static final double MIN_WINDOW_HEIGHT = 220;
 
     private final Clearblue clearblue = new Clearblue(SAVE_FILE_PATH);
 
@@ -33,8 +35,8 @@ public class Main extends Application {
             stage.setScene(scene);
             stage.setTitle("Clearblue");
             stage.getIcons().add(new Image(Main.class.getResourceAsStream("/images/Bot.png")));
-            stage.setMinHeight(220);
-            stage.setMinWidth(417);
+            stage.setMinHeight(MIN_WINDOW_HEIGHT);
+            stage.setMinWidth(MIN_WINDOW_WIDTH);
             fxmlLoader.<MainWindow>getController().setClearblue(clearblue);
             stage.show();
         } catch (IOException exception) {
