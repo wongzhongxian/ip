@@ -11,6 +11,7 @@ import clearblue.command.FindCommand;
 import clearblue.command.ListCommand;
 import clearblue.command.MarkCommand;
 import clearblue.command.OnCommand;
+import clearblue.command.UndoCommand;
 import clearblue.task.Deadline;
 import clearblue.task.Event;
 import clearblue.task.TaskDateTime;
@@ -22,7 +23,7 @@ import clearblue.task.Todo;
  */
 public class Parser {
     private static final String UNKNOWN_COMMAND_MESSAGE = "I don't recognize that command. "
-            + "Try todo, deadline, event, list, mark, unmark, delete, on, find, or bye.";
+            + "Try todo, deadline, event, list, mark, unmark, delete, on, find, undo, or bye.";
 
     /**
      * Parses one command line into a {@link Command}.
@@ -55,6 +56,7 @@ public class Parser {
             case TODO -> parseTodo(arguments);
             case DEADLINE -> parseDeadline(arguments);
             case EVENT -> parseEvent(arguments);
+            case UNDO -> parseUndo(arguments);
             case BYE, UNKNOWN -> throw new ClearblueException(
                     trimmedCommand.isEmpty() ? "Please enter a command." : UNKNOWN_COMMAND_MESSAGE);
         };
@@ -227,5 +229,19 @@ public class Parser {
             throw new ClearblueException("An event needs an end date or time after /to.");
         }
         return new AddCommand(new Event(description, from, to));
+    }
+
+    /**
+     * Parses the arguments for an {@code undo} command.
+     *
+     * @param arguments text following the {@code undo} command word
+     * @return an {@link UndoCommand}
+     * @throws ClearblueException if extra arguments were given
+     */
+    private static Command parseUndo(String arguments) throws ClearblueException {
+        if (!arguments.isEmpty()) {
+            throw new ClearblueException(UNKNOWN_COMMAND_MESSAGE);
+        }
+        return new UndoCommand();
     }
 }

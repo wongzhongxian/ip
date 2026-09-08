@@ -165,13 +165,13 @@ bye
      OOPS!!! A todo needs a description after "todo".
     ____________________________________________________________
     ____________________________________________________________
-     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, find, or bye.
+     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, find, undo, or bye.
     ____________________________________________________________
     ____________________________________________________________
-     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, find, or bye.
+     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, find, undo, or bye.
     ____________________________________________________________
     ____________________________________________________________
-     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, find, or bye.
+     OOPS!!! I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, find, undo, or bye.
     ____________________________________________________________
     ____________________________________________________________
      Your task list is empty.
@@ -703,6 +703,133 @@ bye
     ____________________________________________________________
     ____________________________________________________________
      OOPS!!! Tell me what to search for. Example: find book
+    ____________________________________________________________
+    ____________________________________________________________
+     Bye. Hope to see you again soon! :)
+    ____________________________________________________________
+```
+
+### TC-15: Undo reverses the most recent add, delete, and mark command
+
+**Aim:** Verify that `undo` reverses an add (by removing the task), a delete (by restoring the task, reported as an add), and a mark (by reporting the task unmarked again).
+
+**Inputs:**
+```text
+todo read book
+undo
+list
+todo return laptop
+delete 1
+undo
+list
+mark 1
+undo
+list
+bye
+```
+
+**Expected output:**
+```text
+   ________                __    __
+  / ____/ /__  ____ ______/ /_  / /_  _____
+ / /   / / _ \/ __ `/ ___/ __ \/ / / / / _ \
+/ /___/ /  __/ /_/ / /  / /_/ / / /_/ /  __/
+\____/_/\___/\__,_/_/  /_.___/_/\__,_/\___/
+
+    ____________________________________________________________
+     Hello! I'm Clearblue.
+     What can I do for you? :)
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] read book
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Noted. I've removed this task:
+       [T][ ] read book
+     Now you have 0 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Your task list is empty.
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] return laptop
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Noted. I've removed this task:
+       [T][ ] return laptop
+     Now you have 0 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] return laptop
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][ ] return laptop
+    ____________________________________________________________
+    ____________________________________________________________
+     Nice! I've marked this task as done:
+       [T][X] return laptop
+    ____________________________________________________________
+    ____________________________________________________________
+     OK, I've marked this task as not done yet:
+       [T][ ] return laptop
+    ____________________________________________________________
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][ ] return laptop
+    ____________________________________________________________
+    ____________________________________________________________
+     Bye. Hope to see you again soon! :)
+    ____________________________________________________________
+```
+
+### TC-16: Undo skips read-only commands and does not chain
+
+**Aim:** Verify that a read-only `list` between an add and `undo` does not clear the undo history (the earlier add is still undone), and that a second consecutive `undo` reports nothing left to undo rather than redoing.
+
+**Inputs:**
+```text
+todo x
+list
+undo
+undo
+bye
+```
+
+**Expected output:**
+```text
+   ________                __    __
+  / ____/ /__  ____ ______/ /_  / /_  _____
+ / /   / / _ \/ __ `/ ___/ __ \/ / / / / _ \
+/ /___/ /  __/ /_/ / /  / /_/ / / /_/ /  __/
+\____/_/\___/\__,_/_/  /_.___/_/\__,_/\___/
+
+    ____________________________________________________________
+     Hello! I'm Clearblue.
+     What can I do for you? :)
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] x
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][ ] x
+    ____________________________________________________________
+    ____________________________________________________________
+     Noted. I've removed this task:
+       [T][ ] x
+     Now you have 0 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! There is nothing to undo.
     ____________________________________________________________
     ____________________________________________________________
      Bye. Hope to see you again soon! :)

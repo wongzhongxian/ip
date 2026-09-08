@@ -14,6 +14,8 @@ public class MarkCommand extends Command {
     private final int taskNumber;
     private final boolean isDone;
 
+    private int taskIndex;
+
     /**
      * Creates a command that marks or unmarks the given task number.
      *
@@ -37,7 +39,7 @@ public class MarkCommand extends Command {
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws ClearblueException {
         String action = isDone ? "mark" : "unmark";
-        int taskIndex = requireValidIndex(tasks, taskNumber, action);
+        taskIndex = requireValidIndex(tasks, taskNumber, action);
 
         Task task = tasks.get(taskIndex);
         if (isDone) {
@@ -46,6 +48,37 @@ public class MarkCommand extends Command {
             task.markAsNotDone();
         }
         ui.showTaskStatusChanged(task, isDone);
+        storage.save(tasks.asList());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return {@code true}
+     */
+    @Override
+    public boolean isUndoable() {
+        return true;
+    }
+
+    /**
+     * Reverts the task this command marked or unmarked back to its
+     * previous status.
+     *
+     * @param tasks task list containing the target task
+     * @param ui user interface to report through
+     * @param storage storage to persist the change through
+     * @throws ClearblueException if saving fails
+     */
+    @Override
+    public void undo(TaskList tasks, Ui ui, Storage storage) throws ClearblueException {
+        Task task = tasks.get(taskIndex);
+        if (isDone) {
+            task.markAsNotDone();
+        } else {
+            task.markAsDone();
+        }
+        ui.showTaskStatusChanged(task, !isDone);
         storage.save(tasks.asList());
     }
 }

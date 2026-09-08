@@ -21,6 +21,7 @@ import clearblue.command.FindCommand;
 import clearblue.command.ListCommand;
 import clearblue.command.MarkCommand;
 import clearblue.command.OnCommand;
+import clearblue.command.UndoCommand;
 import clearblue.storage.Storage;
 import clearblue.task.TaskList;
 import clearblue.ui.Ui;
@@ -239,7 +240,19 @@ public class ParserTest {
         ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse("blah"));
         assertEquals(
                 "I don't recognize that command. Try todo, deadline, event, list, mark, unmark, delete, on, find, "
-                        + "or bye.",
+                        + "undo, or bye.",
                 exception.getMessage());
+    }
+
+    @Test
+    public void parse_undoWithNoArguments_returnsUndoCommand() throws ClearblueException {
+        assertInstanceOf(UndoCommand.class, Parser.parse("undo"));
+    }
+
+    @Test
+    public void parse_undoWithExtraArguments_throwsUnknownCommand() {
+        ClearblueException exception =
+                assertThrows(ClearblueException.class, () -> Parser.parse("undo now"));
+        assertTrue(exception.getMessage().startsWith("I don't recognize that command."));
     }
 }

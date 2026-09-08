@@ -39,6 +39,18 @@ public class TaskList {
     }
 
     /**
+     * Inserts a task at the given index, shifting later tasks back by one.
+     * Used by {@link clearblue.command.DeleteCommand#undo} to restore a
+     * removed task to its original position.
+     *
+     * @param index zero-based index to insert at
+     * @param task task to insert
+     */
+    public void add(int index, Task task) {
+        tasks.add(index, task);
+    }
+
+    /**
      * Removes and returns the task at the given index.
      *
      * @param index zero-based index of the task to remove
