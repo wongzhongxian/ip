@@ -32,6 +32,33 @@ public abstract class Command {
     }
 
     /**
+     * Returns whether {@link #undo} can reverse this command's effect.
+     * Commands that change the task list override this to return
+     * {@code true}; read-only commands leave the default {@code false}.
+     *
+     * @return {@code true} if this command supports being undone
+     */
+    public boolean isUndoable() {
+        return false;
+    }
+
+    /**
+     * Reverses this command's effect on {@code tasks}, reports it through
+     * {@code ui}, and saves the reverted list via {@code storage}. Only
+     * ever called on a command for which {@link #isUndoable()} is
+     * {@code true}; the default implementation exists to make misuse fail
+     * loudly rather than silently do nothing.
+     *
+     * @param tasks task list to revert
+     * @param ui user interface to report through
+     * @param storage storage to persist the reverted list through
+     * @throws ClearblueException if saving fails
+     */
+    public void undo(TaskList tasks, Ui ui, Storage storage) throws ClearblueException {
+        throw new UnsupportedOperationException(getClass().getSimpleName() + " cannot be undone");
+    }
+
+    /**
      * Resolves a user-provided task number to a zero-based index, checking
      * it against the current task list. Shared by commands that target one
      * existing task by number.

@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import clearblue.command.Command;
+import clearblue.command.UndoCommand;
 import clearblue.parser.Parser;
 import clearblue.storage.Storage;
 import clearblue.task.TaskList;
@@ -17,6 +18,7 @@ public class Clearblue {
     private final Storage storage;
     private TaskList tasks;
     private boolean isExit;
+    private Command lastUndoableCommand;
 
     /**
      * Creates the chatbot, loading any previously saved tasks from the
@@ -49,7 +51,7 @@ public class Clearblue {
                 String fullCommand = ui.readCommand();
                 ui.showLine();
                 Command command = Parser.parse(fullCommand);
-                command.execute(tasks, ui, storage);
+                executeAndTrackUndo(command);
                 isExit = command.isExit();
             } catch (ClearblueException exception) {
                 ui.showError(exception.getMessage());
@@ -73,12 +75,34 @@ public class Clearblue {
         return captureOutput(() -> {
             try {
                 Command command = Parser.parse(input);
-                command.execute(tasks, ui, storage);
+                executeAndTrackUndo(command);
                 isExit = command.isExit();
             } catch (ClearblueException exception) {
                 ui.showError(exception.getMessage());
             }
         });
+    }
+
+    /**
+     * Executes {@code command}, wiring it into the undo history first: an
+     * {@link UndoCommand} is handed the last undoable command to reverse,
+     * and after a successful execute, {@code command} itself becomes the
+     * new last undoable command if {@link Command#isUndoable()} says it is.
+     * Only one level of undo is kept, so undoing clears the history rather
+     * than pushing onto it.
+     *
+     * @param command command to execute
+     * @throws ClearblueException if execution fails, e.g. there was nothing to undo
+     */
+    private void executeAndTrackUndo(Command command) throws ClearblueException {
+        if (command instanceof UndoCommand undoCommand) {
+            undoCommand.setCommandToUndo(lastUndoableCommand);
+            lastUndoableCommand = null;
+        }
+        command.execute(tasks, ui, storage);
+        if (command.isUndoable()) {
+            lastUndoableCommand = command;
+        }
     }
 
     /**

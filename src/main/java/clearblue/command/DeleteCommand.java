@@ -13,6 +13,9 @@ import clearblue.ui.Ui;
 public class DeleteCommand extends Command {
     private final int taskNumber;
 
+    private Task removedTask;
+    private int removedIndex;
+
     /**
      * Creates a command that removes the given task number.
      *
@@ -36,8 +39,35 @@ public class DeleteCommand extends Command {
     public void execute(TaskList tasks, Ui ui, Storage storage) throws ClearblueException {
         int taskIndex = requireValidIndex(tasks, taskNumber, "delete");
 
-        Task removedTask = tasks.remove(taskIndex);
+        removedTask = tasks.remove(taskIndex);
+        removedIndex = taskIndex;
         ui.showTaskRemoved(removedTask, tasks.size());
+        storage.save(tasks.asList());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return {@code true}
+     */
+    @Override
+    public boolean isUndoable() {
+        return true;
+    }
+
+    /**
+     * Re-inserts the task this command removed, back at its original
+     * position.
+     *
+     * @param tasks task list to restore the removed task to
+     * @param ui user interface to report through
+     * @param storage storage to persist the change through
+     * @throws ClearblueException if saving fails
+     */
+    @Override
+    public void undo(TaskList tasks, Ui ui, Storage storage) throws ClearblueException {
+        tasks.add(removedIndex, removedTask);
+        ui.showTaskAdded(removedTask, tasks.size());
         storage.save(tasks.asList());
     }
 }
