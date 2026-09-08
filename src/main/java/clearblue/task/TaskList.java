@@ -132,11 +132,23 @@ public class TaskList {
      */
     private static boolean isOnDate(Task task, LocalDate queryDate) {
         if (task instanceof Deadline deadline) {
-            return deadline.getBy().isDate() && deadline.getBy().getDate().equals(queryDate);
+            return matchesDate(deadline.getBy(), queryDate);
         } else if (task instanceof Event event) {
-            return (event.getFrom().isDate() && event.getFrom().getDate().equals(queryDate))
-                    || (event.getTo().isDate() && event.getTo().getDate().equals(queryDate));
+            return matchesDate(event.getFrom(), queryDate) || matchesDate(event.getTo(), queryDate);
         }
         return false;
+    }
+
+    /**
+     * Checks whether a date-or-text value is a real date equal to
+     * {@code queryDate}. Free-form text (not recognized as a date) never
+     * matches, regardless of its content.
+     *
+     * @param dateTime value to check
+     * @param queryDate date to match against
+     * @return {@code true} if {@code dateTime} is a real date equal to {@code queryDate}
+     */
+    private static boolean matchesDate(TaskDateTime dateTime, LocalDate queryDate) {
+        return dateTime.isDate() && dateTime.getDate().equals(queryDate);
     }
 }
