@@ -3,6 +3,7 @@ package clearblue.task;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Holds the list of tasks and the operations that add, remove, and look
@@ -94,13 +95,9 @@ public class TaskList {
      * @return matching tasks, in list order
      */
     public List<Task> getTasksOnDate(LocalDate queryDate) {
-        List<Task> matches = new ArrayList<>();
-        for (Task task : tasks) {
-            if (isOnDate(task, queryDate)) {
-                matches.add(task);
-            }
-        }
-        return matches;
+        return tasks.stream()
+                .filter(task -> isOnDate(task, queryDate))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -112,13 +109,9 @@ public class TaskList {
      */
     public List<Task> getTasksContaining(String keyword) {
         String lowerCaseKeyword = keyword.toLowerCase();
-        List<Task> matches = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task.getDescription().toLowerCase().contains(lowerCaseKeyword)) {
-                matches.add(task);
-            }
-        }
-        return matches;
+        return tasks.stream()
+                .filter(task -> task.getDescription().toLowerCase().contains(lowerCaseKeyword))
+                .collect(Collectors.toList());
     }
 
     /**
