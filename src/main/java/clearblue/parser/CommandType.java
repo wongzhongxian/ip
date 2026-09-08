@@ -1,5 +1,7 @@
 package clearblue.parser;
 
+import java.util.Arrays;
+
 /**
  * Identifies the fixed set of commands understood by Clearblue.
  */
@@ -51,12 +53,10 @@ public enum CommandType {
         // non-space character, so firstWord can never be blank at this point.
         assert !firstWord.isEmpty() : "firstWord must be non-blank once trimmedCommand is non-empty";
 
-        for (CommandType type : values()) {
-            if (type.commandWord.equals(firstWord)) {
-                return type;
-            }
-        }
-        return UNKNOWN;
+        return Arrays.stream(values())
+                .filter(type -> type.commandWord.equals(firstWord))
+                .findFirst()
+                .orElse(UNKNOWN);
     }
 
     /**

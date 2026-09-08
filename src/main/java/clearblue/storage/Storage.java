@@ -5,7 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import clearblue.ClearblueException;
 import clearblue.task.Deadline;
@@ -39,10 +41,9 @@ public class Storage {
      * @throws ClearblueException if the tasks could not be written to disk
      */
     public void save(List<Task> tasks) throws ClearblueException {
-        List<String> lines = new ArrayList<>();
-        for (Task task : tasks) {
-            lines.add(encode(task));
-        }
+        List<String> lines = tasks.stream()
+                .map(Storage::encode)
+                .collect(Collectors.toList());
 
         try {
             Path parentDirectory = dataFile.getParent();
@@ -67,9 +68,8 @@ public class Storage {
      * @throws ClearblueException if the save file exists but could not be read
      */
     public List<Task> load() throws ClearblueException {
-        List<Task> tasks = new ArrayList<>();
         if (!Files.exists(dataFile)) {
-            return tasks;
+            return new ArrayList<>();
         }
 
         List<String> lines;
@@ -79,13 +79,10 @@ public class Storage {
             throw new ClearblueException("Could not load saved tasks: " + exception.getMessage(), exception);
         }
 
-        for (String line : lines) {
-            Task task = decode(line);
-            if (task != null) {
-                tasks.add(task);
-            }
-        }
-        return tasks;
+        return lines.stream()
+                .map(Storage::decode)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     /**
