@@ -44,6 +44,13 @@ public enum CommandType {
                 ? trimmedCommand
                 : trimmedCommand.substring(0, firstSpace);
 
+        // UNKNOWN's command word is "" (see the enum constants above); if
+        // firstWord could be blank here, it would spuriously match UNKNOWN
+        // inside the loop below instead of via the isEmpty() check above.
+        // The isEmpty() check guarantees trimmedCommand starts with a
+        // non-space character, so firstWord can never be blank at this point.
+        assert !firstWord.isEmpty() : "firstWord must be non-blank once trimmedCommand is non-empty";
+
         for (CommandType type : values()) {
             if (type.commandWord.equals(firstWord)) {
                 return type;
