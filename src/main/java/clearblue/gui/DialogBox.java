@@ -20,6 +20,11 @@ import javafx.scene.shape.Circle;
  * either the user or Clearblue.
  */
 public class DialogBox extends HBox {
+    // Matches displayPicture's fitWidth/fitHeight in DialogBox.fxml: the clip
+    // circle is centered on, and inscribed within, that square avatar image.
+    private static final double AVATAR_DIAMETER = 99.0;
+    private static final double AVATAR_RADIUS = AVATAR_DIAMETER / 2;
+
     @FXML
     private Label dialog;
     @FXML
@@ -37,7 +42,7 @@ public class DialogBox extends HBox {
 
         dialog.setText(text);
         displayPicture.setImage(image);
-        displayPicture.setClip(new Circle(49.5, 49.5, 49.5));
+        displayPicture.setClip(new Circle(AVATAR_RADIUS, AVATAR_RADIUS, AVATAR_RADIUS));
     }
 
     /**

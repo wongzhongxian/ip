@@ -141,9 +141,7 @@ public class Ui {
      */
     public void showTaskList(TaskList tasks) {
         System.out.println("     Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.println("     " + (i + 1) + "." + tasks.get(i));
-        }
+        printNumberedTasks(tasks.asList());
     }
 
     /**
@@ -165,9 +163,7 @@ public class Ui {
      */
     public void showTasksOnDate(List<Task> matches, String displayDate) {
         System.out.println("     Here are the deadlines and events on " + displayDate + ":");
-        for (int i = 0; i < matches.size(); i++) {
-            System.out.println("     " + (i + 1) + "." + matches.get(i));
-        }
+        printNumberedTasks(matches);
     }
 
     /**
@@ -188,8 +184,17 @@ public class Ui {
      */
     public void showMatchingTasks(List<Task> matches) {
         System.out.println("     Here are the matching tasks in your list:");
-        for (int i = 0; i < matches.size(); i++) {
-            System.out.println("     " + (i + 1) + "." + matches.get(i));
+        printNumberedTasks(matches);
+    }
+
+    /**
+     * Prints each task in {@code tasks} on its own line, numbered from 1.
+     *
+     * @param tasks tasks to print
+     */
+    private void printNumberedTasks(List<Task> tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println("     " + (i + 1) + "." + tasks.get(i));
         }
     }
 }

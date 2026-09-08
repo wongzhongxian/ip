@@ -36,10 +36,10 @@ public class Parser {
         // passes the GUI text field's value straight through untrimmed. Trimming
         // here (rather than relying on each caller to do it) keeps the invariant
         // that parseArguments() below depends on true for both entry points.
-        fullCommand = fullCommand.trim();
+        String trimmedCommand = fullCommand.trim();
 
-        CommandType commandType = CommandType.fromCommand(fullCommand);
-        String arguments = parseArguments(fullCommand, commandType);
+        CommandType commandType = CommandType.fromCommand(trimmedCommand);
+        String arguments = parseArguments(trimmedCommand, commandType);
 
         if (commandType == CommandType.BYE && arguments.isEmpty()) {
             return new ExitCommand();
@@ -56,7 +56,7 @@ public class Parser {
             case DEADLINE -> parseDeadline(arguments);
             case EVENT -> parseEvent(arguments);
             case BYE, UNKNOWN -> throw new ClearblueException(
-                    fullCommand.isEmpty() ? "Please enter a command." : UNKNOWN_COMMAND_MESSAGE);
+                    trimmedCommand.isEmpty() ? "Please enter a command." : UNKNOWN_COMMAND_MESSAGE);
         };
     }
 
