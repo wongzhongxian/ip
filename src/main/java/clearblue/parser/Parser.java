@@ -32,6 +32,12 @@ public class Parser {
      * @throws ClearblueException if the command is empty, unrecognized, or malformed
      */
     public static Command parse(String fullCommand) throws ClearblueException {
+        // Ui.readCommand() already trims console input, but Clearblue.getResponse()
+        // passes the GUI text field's value straight through untrimmed. Trimming
+        // here (rather than relying on each caller to do it) keeps the invariant
+        // that parseArguments() below depends on true for both entry points.
+        fullCommand = fullCommand.trim();
+
         CommandType commandType = CommandType.fromCommand(fullCommand);
         String arguments = parseArguments(fullCommand, commandType);
 
@@ -62,6 +68,14 @@ public class Parser {
      * @return trimmed command arguments, or the original input for an unknown command
      */
     private static String parseArguments(String command, CommandType commandType) {
+        // command must already be trimmed: the substring below cuts off exactly
+        // commandType.getCommandWord().length() characters from the front, which
+        // only lines up with the command word if there is no leading whitespace.
+        // A leading space here would silently shift the extracted arguments by
+        // one character instead of throwing, so this is worth asserting rather
+        // than leaving as an unstated assumption.
+        assert command.equals(command.trim()) : "command must be pre-trimmed by the caller";
+
         if (commandType == CommandType.UNKNOWN) {
             return command;
         }

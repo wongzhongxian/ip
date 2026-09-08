@@ -52,6 +52,15 @@ public abstract class Command {
             throw new ClearblueException(
                     "Task " + taskNumber + " does not exist. Choose " + validRange + ".");
         }
-        return taskNumber - 1;
+
+        int taskIndex = taskNumber - 1;
+        // Callers (e.g. DeleteCommand, MarkCommand) trust this index and pass
+        // it straight to TaskList.get/remove without re-checking bounds; if
+        // the checks above ever stopped guaranteeing this range, those calls
+        // would fail with an IndexOutOfBoundsException instead of the
+        // friendly ClearblueException this method exists to produce.
+        assert taskIndex >= 0 && taskIndex < tasks.size()
+                : "requireValidIndex must return a valid zero-based index";
+        return taskIndex;
     }
 }
