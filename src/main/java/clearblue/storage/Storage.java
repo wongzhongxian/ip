@@ -34,6 +34,20 @@ public class Storage {
     }
 
     /**
+     * Returns whether text contains this Storage's field separator. Saving
+     * such text verbatim would let it be mistaken for a field boundary,
+     * corrupting the line on the next {@link #load()} — so callers that
+     * accept free-form text for a task (e.g. {@link clearblue.parser.Parser})
+     * should reject it before it ever reaches {@link #save}.
+     *
+     * @param text text to check, e.g. a task description or date/time value
+     * @return {@code true} if text contains the field separator
+     */
+    public static boolean containsFieldSeparator(String text) {
+        return text.contains(FIELD_SEPARATOR);
+    }
+
+    /**
      * Writes the given tasks to this Storage's file, creating the
      * containing folder first if it does not already exist.
      *
