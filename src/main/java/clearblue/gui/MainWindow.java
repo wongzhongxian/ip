@@ -17,6 +17,11 @@ import javafx.util.Duration;
  * bubbles above a text field and send button.
  */
 public class MainWindow extends AnchorPane {
+    // Console users get this via Ui.showWelcome() when Clearblue.run() starts;
+    // the GUI has no equivalent entry point, so without this the window would
+    // otherwise open completely blank until the user's first message.
+    private static final String GREETING_MESSAGE = "Hello! I'm Clearblue. What can I do for you? :)";
+
     @FXML
     private ScrollPane scrollPane;
     @FXML
@@ -41,27 +46,33 @@ public class MainWindow extends AnchorPane {
     }
 
     /**
-     * Injects the {@link Clearblue} instance this window sends commands to.
+     * Injects the {@link Clearblue} instance this window sends commands to,
+     * and shows Clearblue's greeting as the first dialog box.
      *
      * @param clearblue chatbot instance to wrap
      */
     public void setClearblue(Clearblue clearblue) {
         this.clearblue = clearblue;
+        dialogContainer.getChildren().add(DialogBox.getClearblueDialog(GREETING_MESSAGE, botImage));
     }
 
     /**
      * Reads the text field, gets Clearblue's reply, and appends both as
-     * dialog boxes to the conversation. Closes the window if the command
-     * was {@code bye}, after a short pause so the farewell message is
-     * visible.
+     * dialog boxes to the conversation, styling the reply as an error if
+     * {@link Clearblue#isLastResponseError()} says it was one. Closes the
+     * window if the command was {@code bye}, after a short pause so the
+     * farewell message is visible.
      */
     @FXML
     private void handleUserInput() {
         String input = userInput.getText();
         String response = clearblue.getResponse(input);
+        DialogBox clearblueDialog = clearblue.isLastResponseError()
+                ? DialogBox.getErrorDialog(response, botImage)
+                : DialogBox.getClearblueDialog(response, botImage);
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
-                DialogBox.getClearblueDialog(response, botImage)
+                clearblueDialog
         );
         userInput.clear();
 

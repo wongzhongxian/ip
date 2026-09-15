@@ -18,6 +18,7 @@ public class Clearblue {
     private final Storage storage;
     private TaskList tasks;
     private boolean isExit;
+    private boolean isLastResponseError;
     private Command lastUndoableCommand;
 
     /**
@@ -73,12 +74,14 @@ public class Clearblue {
      */
     public String getResponse(String input) {
         return captureOutput(() -> {
+            isLastResponseError = false;
             try {
                 Command command = Parser.parse(input);
                 executeAndTrackUndo(command);
                 isExit = command.isExit();
             } catch (ClearblueException exception) {
                 ui.showError(exception.getMessage());
+                isLastResponseError = true;
             }
         });
     }
@@ -114,6 +117,17 @@ public class Clearblue {
      */
     public boolean isExit() {
         return isExit;
+    }
+
+    /**
+     * Returns whether the most recent command handled by
+     * {@link #getResponse(String)} failed, so the GUI knows to display that
+     * reply as an error rather than a normal one.
+     *
+     * @return {@code true} if the last response was an error message
+     */
+    public boolean isLastResponseError() {
+        return isLastResponseError;
     }
 
     /**
