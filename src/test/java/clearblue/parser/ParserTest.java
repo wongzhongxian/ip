@@ -58,6 +58,13 @@ public class ParserTest {
     }
 
     @Test
+    public void parse_todoDescriptionContainsFieldSeparator_throws() {
+        ClearblueException exception =
+                assertThrows(ClearblueException.class, () -> Parser.parse("todo read book | urgent"));
+        assertTrue(exception.getMessage().contains("description"));
+    }
+
+    @Test
     public void parse_validDeadline_addsTaskWithFormattedDate() throws ClearblueException {
         Command command = Parser.parse("deadline return book /by 2019-06-06");
 
@@ -89,6 +96,20 @@ public class ParserTest {
     }
 
     @Test
+    public void parse_deadlineDuplicateBySeparator_throws() {
+        String input = "deadline return book /by Sunday /by Monday";
+        ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse(input));
+        assertEquals("A deadline can only have one /by.", exception.getMessage());
+    }
+
+    @Test
+    public void parse_deadlineDescriptionContainsFieldSeparator_throws() {
+        String input = "deadline return book | urgent /by Sunday";
+        ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse(input));
+        assertTrue(exception.getMessage().contains("description"));
+    }
+
+    @Test
     public void parse_validEvent_addsTaskWithBothTimes() throws ClearblueException {
         Command command = Parser.parse("event trip /from 2019-06-06 /to 2019-06-08");
 
@@ -110,6 +131,49 @@ public class ParserTest {
         ClearblueException exception =
                 assertThrows(ClearblueException.class, () -> Parser.parse("event trip /from 2pm"));
         assertTrue(exception.getMessage().contains("/to separator"));
+    }
+
+    @Test
+    public void parse_eventDuplicateFromSeparator_throws() {
+        String input = "event trip /from 2pm /from 3pm /to 4pm";
+        ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse(input));
+        assertEquals("An event can only have one /from.", exception.getMessage());
+    }
+
+    @Test
+    public void parse_eventDuplicateToSeparator_throws() {
+        String input = "event trip /from 2pm /to 4pm /to 5pm";
+        ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse(input));
+        assertEquals("An event can only have one /to.", exception.getMessage());
+    }
+
+    @Test
+    public void parse_eventDescriptionContainsFieldSeparator_throws() {
+        String input = "event trip | overseas /from 2pm /to 4pm";
+        ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse(input));
+        assertTrue(exception.getMessage().contains("description"));
+    }
+
+    @Test
+    public void parse_eventStartDateAfterEndDate_throws() {
+        String input = "event trip /from 2019-06-08 /to 2019-06-06";
+        ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse(input));
+        assertEquals("An event's start date must be before its end date.", exception.getMessage());
+    }
+
+    @Test
+    public void parse_eventStartDateEqualsEndDate_throws() {
+        String input = "event trip /from 2019-06-06 /to 2019-06-06";
+        ClearblueException exception = assertThrows(ClearblueException.class, () -> Parser.parse(input));
+        assertEquals("An event's start date must be before its end date.", exception.getMessage());
+    }
+
+    @Test
+    public void parse_eventFreeTextTimesNotComparedChronologically_addsTask() throws ClearblueException {
+        // "4pm" and "2pm" aren't recognized as dates, so there's nothing to
+        // compare them against; the task is accepted as free text either way.
+        Command command = Parser.parse("event trip /from 4pm /to 2pm");
+        assertInstanceOf(AddCommand.class, command);
     }
 
     @Test

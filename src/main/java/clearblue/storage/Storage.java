@@ -34,6 +34,20 @@ public class Storage {
     }
 
     /**
+     * Returns whether text contains this Storage's field separator. Saving
+     * such text verbatim would let it be mistaken for a field boundary,
+     * corrupting the line on the next {@link #load()} — so callers that
+     * accept free-form text for a task (e.g. {@link clearblue.parser.Parser})
+     * should reject it before it ever reaches {@link #save}.
+     *
+     * @param text text to check, e.g. a task description or date/time value
+     * @return {@code true} if text contains the field separator
+     */
+    public static boolean containsFieldSeparator(String text) {
+        return text.contains(FIELD_SEPARATOR);
+    }
+
+    /**
      * Writes the given tasks to this Storage's file, creating the
      * containing folder first if it does not already exist.
      *
@@ -60,16 +74,18 @@ public class Storage {
     /**
      * Loads previously saved tasks from this Storage's file. If the file
      * or its folder does not exist yet (e.g. on a fresh install), this
-     * returns an empty list without treating that as an error. Any line
+     * returns an empty result without treating that as an error. Any line
      * that cannot be parsed (corrupted data) is skipped instead of causing
-     * the chatbot to crash on startup.
+     * the chatbot to crash on startup; the caller can check
+     * {@link LoadResult#skippedLineCount()} to let the user know some
+     * saved data was lost, rather than tasks silently disappearing.
      *
-     * @return the loaded tasks, or an empty list if there is nothing saved yet
+     * @return the loaded tasks plus a count of lines that had to be skipped
      * @throws ClearblueException if the save file exists but could not be read
      */
-    public List<Task> load() throws ClearblueException {
+    public LoadResult load() throws ClearblueException {
         if (!Files.exists(dataFile)) {
-            return new ArrayList<>();
+            return new LoadResult(new ArrayList<>(), 0);
         }
 
         List<String> lines;
@@ -79,10 +95,25 @@ public class Storage {
             throw new ClearblueException("Could not load saved tasks: " + exception.getMessage(), exception);
         }
 
-        return lines.stream()
+        List<Task> decoded = lines.stream()
                 .map(Storage::decode)
+                .collect(Collectors.toList());
+        List<Task> tasks = decoded.stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        int skippedLineCount = decoded.size() - tasks.size();
+        return new LoadResult(tasks, skippedLineCount);
+    }
+
+    /**
+     * The outcome of {@link #load()}: the tasks that were successfully
+     * parsed, plus how many lines had to be skipped because they were
+     * corrupted.
+     *
+     * @param tasks tasks successfully loaded, in file order
+     * @param skippedLineCount number of lines that could not be parsed
+     */
+    public record LoadResult(List<Task> tasks, int skippedLineCount) {
     }
 
     /**

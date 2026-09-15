@@ -12,6 +12,7 @@ import clearblue.command.ListCommand;
 import clearblue.command.MarkCommand;
 import clearblue.command.OnCommand;
 import clearblue.command.UndoCommand;
+import clearblue.storage.Storage;
 import clearblue.task.Deadline;
 import clearblue.task.Event;
 import clearblue.task.TaskDateTime;
@@ -166,6 +167,7 @@ public class Parser {
         if (arguments.isEmpty()) {
             throw new ClearblueException("A todo needs a description after \"todo\".");
         }
+        requireSafeForStorage(arguments, "description");
         return new AddCommand(new Todo(arguments));
     }
 
@@ -182,6 +184,9 @@ public class Parser {
             throw new ClearblueException("A deadline needs a /by separator. "
                     + "Example: deadline return book /by Sunday");
         }
+        if (arguments.indexOf("/by", byIndex + "/by".length()) >= 0) {
+            throw new ClearblueException("A deadline can only have one /by.");
+        }
 
         String description = arguments.substring(0, byIndex).trim();
         String by = arguments.substring(byIndex + "/by".length()).trim();
@@ -192,6 +197,8 @@ public class Parser {
         if (by.isEmpty()) {
             throw new ClearblueException("A deadline needs a date or time after /by.");
         }
+        requireSafeForStorage(description, "description");
+        requireSafeForStorage(by, "/by date or time");
         return new AddCommand(new Deadline(description, by));
     }
 
@@ -214,6 +221,12 @@ public class Parser {
             throw new ClearblueException("An event needs a /to separator. "
                     + "Example: event meeting /from 2pm /to 4pm");
         }
+        if (arguments.indexOf("/from", fromIndex + "/from".length()) >= 0) {
+            throw new ClearblueException("An event can only have one /from.");
+        }
+        if (arguments.indexOf("/to", toIndex + "/to".length()) >= 0) {
+            throw new ClearblueException("An event can only have one /to.");
+        }
 
         String description = arguments.substring(0, fromIndex).trim();
         String from = arguments.substring(fromIndex + "/from".length(), toIndex).trim();
@@ -228,7 +241,30 @@ public class Parser {
         if (to.isEmpty()) {
             throw new ClearblueException("An event needs an end date or time after /to.");
         }
-        return new AddCommand(new Event(description, from, to));
+        requireSafeForStorage(description, "description");
+        requireSafeForStorage(from, "/from date or time");
+        requireSafeForStorage(to, "/to date or time");
+
+        Event event = new Event(description, from, to);
+        requireChronologicalOrder(event);
+        return new AddCommand(event);
+    }
+
+    /**
+     * Rejects an event whose start and end are both real calendar dates but
+     * not in chronological order. Free-form times (e.g. {@code 2pm}) can't
+     * be compared this way, so this only applies when both sides parsed as
+     * an actual {@code yyyy-MM-dd} date.
+     *
+     * @param event event to check
+     * @throws ClearblueException if both dates are real and {@code from} is not before {@code to}
+     */
+    private static void requireChronologicalOrder(Event event) throws ClearblueException {
+        TaskDateTime from = event.getFrom();
+        TaskDateTime to = event.getTo();
+        if (from.isDate() && to.isDate() && !from.getDate().isBefore(to.getDate())) {
+            throw new ClearblueException("An event's start date must be before its end date.");
+        }
     }
 
     /**
@@ -243,5 +279,20 @@ public class Parser {
             throw new ClearblueException(UNKNOWN_COMMAND_MESSAGE);
         }
         return new UndoCommand();
+    }
+
+    /**
+     * Rejects text that would corrupt the save file if stored verbatim.
+     *
+     * @param text field value to check, e.g. a description or date/time
+     * @param fieldName name of the field, for the error message
+     * @throws ClearblueException if text contains the storage field separator
+     */
+    private static void requireSafeForStorage(String text, String fieldName) throws ClearblueException {
+        if (Storage.containsFieldSeparator(text)) {
+            throw new ClearblueException(
+                    "A task's " + fieldName + " can't contain \" | \", since that's used internally "
+                            + "to save your data.");
+        }
     }
 }

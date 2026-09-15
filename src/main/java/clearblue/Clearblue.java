@@ -31,7 +31,11 @@ public class Clearblue {
         ui = new Ui();
         storage = new Storage(filePath);
         try {
-            tasks = new TaskList(storage.load());
+            Storage.LoadResult loadResult = storage.load();
+            tasks = new TaskList(loadResult.tasks());
+            if (loadResult.skippedLineCount() > 0) {
+                ui.showCorruptedDataWarning(loadResult.skippedLineCount());
+            }
         } catch (ClearblueException exception) {
             ui.showError(exception.getMessage());
             tasks = new TaskList();

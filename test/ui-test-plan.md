@@ -2,7 +2,7 @@
 
 This plan contains exact-output regression tests for Clearblue's command-line interface. Each test case runs in a fresh program process with an empty task list.
 
-**Persistence note:** Clearblue saves tasks to `data/clearblue.txt` on every change and loads them on startup. Because every test case here starts a fresh process in the same working directory, the runner (`run_ui_tests.py`) deletes the `data/` folder before each case so the "empty task list" guarantee above still holds — none of the cases below exercise save/load behavior directly. Cross-restart persistence (a second process picking up a first process's saved tasks) and corrupted/missing-file handling were verified manually, since this runner executes only one process per case and cannot restart with retained state mid-case. This includes verifying that a `yyyy-MM-dd` deadline/event value survives a restart as a real date (not degraded into free text) — save writes the original raw text, not the `MMM dd yyyy` display text.
+**Persistence note:** Clearblue saves tasks to `data/clearblue.txt` on every change and loads them on startup. Because every test case here starts a fresh process in the same working directory, the runner (`run_ui_tests.py`) deletes the `data/` folder before each case so the "empty task list" guarantee above still holds — none of the cases below exercise save/load behavior directly. Cross-restart persistence (a second process picking up a first process's saved tasks) and corrupted/missing-file handling were verified manually, since this runner executes only one process per case and cannot restart with retained state mid-case. This includes verifying that a `yyyy-MM-dd` deadline/event value survives a restart as a real date (not degraded into free text) — save writes the original raw text, not the `MMM dd yyyy` display text. It also includes verifying that a save file with some corrupted lines mixed in with valid ones loads the valid tasks and prints `OOPS!!! <N> line(s) in your saved data could not be read and was/were skipped.` before the banner, rather than silently losing the corrupted entries.
 
 ## Configuration
 
@@ -830,6 +830,127 @@ bye
     ____________________________________________________________
     ____________________________________________________________
      OOPS!!! There is nothing to undo.
+    ____________________________________________________________
+    ____________________________________________________________
+     Bye. Hope to see you again soon! :)
+    ____________________________________________________________
+```
+
+### TC-17: Reject a command parameter given more than once
+
+**Aim:** Verify that repeating `/by`, `/from`, or `/to` in one command produces a clear error, instead of silently keeping only the first or last value.
+
+**Inputs:**
+```text
+deadline return book /by Sunday /by Monday
+event trip /from 2pm /from 3pm /to 4pm
+event trip /from 2pm /to 4pm /to 5pm
+bye
+```
+
+**Expected output:**
+```text
+   ________                __    __
+  / ____/ /__  ____ ______/ /_  / /_  _____
+ / /   / / _ \/ __ `/ ___/ __ \/ / / / / _ \
+/ /___/ /  __/ /_/ / /  / /_/ / / /_/ /  __/
+\____/_/\___/\__,_/_/  /_.___/_/\__,_/\___/
+
+    ____________________________________________________________
+     Hello! I'm Clearblue.
+     What can I do for you? :)
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! A deadline can only have one /by.
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! An event can only have one /from.
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! An event can only have one /to.
+    ____________________________________________________________
+    ____________________________________________________________
+     Bye. Hope to see you again soon! :)
+    ____________________________________________________________
+```
+
+### TC-18: Reject task text containing the storage field separator
+
+**Aim:** Verify that a description or date/time value containing `" | "` (the exact save-file field separator) is rejected, instead of silently corrupting the saved data on the next load.
+
+**Inputs:**
+```text
+todo read book | urgent
+deadline return book | urgent /by Sunday
+event trip | overseas /from 2pm /to 4pm
+bye
+```
+
+**Expected output:**
+```text
+   ________                __    __
+  / ____/ /__  ____ ______/ /_  / /_  _____
+ / /   / / _ \/ __ `/ ___/ __ \/ / / / / _ \
+/ /___/ /  __/ /_/ / /  / /_/ / / /_/ /  __/
+\____/_/\___/\__,_/_/  /_.___/_/\__,_/\___/
+
+    ____________________________________________________________
+     Hello! I'm Clearblue.
+     What can I do for you? :)
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! A task's description can't contain " | ", since that's used internally to save your data.
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! A task's description can't contain " | ", since that's used internally to save your data.
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! A task's description can't contain " | ", since that's used internally to save your data.
+    ____________________________________________________________
+    ____________________________________________________________
+     Bye. Hope to see you again soon! :)
+    ____________________________________________________________
+```
+
+### TC-19: Reject an event whose start is not before its end
+
+**Aim:** Verify that an event is rejected when both `/from` and `/to` are real dates and the start is not strictly before the end, but that free-text times (which can't be compared this way) are still accepted regardless of order.
+
+**Inputs:**
+```text
+event trip /from 2019-06-08 /to 2019-06-06
+event trip /from 2019-06-06 /to 2019-06-06
+event trip /from 4pm /to 2pm
+list
+bye
+```
+
+**Expected output:**
+```text
+   ________                __    __
+  / ____/ /__  ____ ______/ /_  / /_  _____
+ / /   / / _ \/ __ `/ ___/ __ \/ / / / / _ \
+/ /___/ /  __/ /_/ / /  / /_/ / / /_/ /  __/
+\____/_/\___/\__,_/_/  /_.___/_/\__,_/\___/
+
+    ____________________________________________________________
+     Hello! I'm Clearblue.
+     What can I do for you? :)
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! An event's start date must be before its end date.
+    ____________________________________________________________
+    ____________________________________________________________
+     OOPS!!! An event's start date must be before its end date.
+    ____________________________________________________________
+    ____________________________________________________________
+     Got it. I've added this task:
+       [E][ ] trip (from: 4pm to: 2pm)
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[E][ ] trip (from: 4pm to: 2pm)
     ____________________________________________________________
     ____________________________________________________________
      Bye. Hope to see you again soon! :)
