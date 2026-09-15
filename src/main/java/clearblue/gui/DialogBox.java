@@ -20,17 +20,19 @@ import javafx.scene.shape.Circle;
  * either the user or Clearblue.
  */
 public class DialogBox extends HBox {
-    // Matches displayPicture's fitWidth/fitHeight in DialogBox.fxml: the clip
-    // circle is centered on, and inscribed within, that square avatar image.
-    private static final double AVATAR_DIAMETER = 99.0;
-    private static final double AVATAR_RADIUS = AVATAR_DIAMETER / 2;
+    // Clearblue keeps its full-size avatar (personality matters more on its
+    // side), but the user doesn't need a big picture of themselves, so their
+    // avatar is shrunk. This also gives the two sides a visibly different
+    // shape rather than just a mirrored, recolored copy of each other.
+    private static final double BOT_AVATAR_DIAMETER = 99.0;
+    private static final double USER_AVATAR_DIAMETER = 56.0;
 
     @FXML
     private Label dialog;
     @FXML
     private ImageView displayPicture;
 
-    private DialogBox(String text, Image image) {
+    private DialogBox(String text, Image image, double avatarDiameter) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(DialogBox.class.getResource("/view/DialogBox.fxml"));
             fxmlLoader.setController(this);
@@ -40,21 +42,24 @@ public class DialogBox extends HBox {
             exception.printStackTrace();
         }
 
+        double avatarRadius = avatarDiameter / 2;
         dialog.setText(text);
         displayPicture.setImage(image);
-        displayPicture.setClip(new Circle(AVATAR_RADIUS, AVATAR_RADIUS, AVATAR_RADIUS));
+        displayPicture.setFitWidth(avatarDiameter);
+        displayPicture.setFitHeight(avatarDiameter);
+        displayPicture.setClip(new Circle(avatarRadius, avatarRadius, avatarRadius));
     }
 
     /**
      * Mirrors the dialog box so the avatar is on the left and text on the
-     * right, and switches the label to the "reply" style.
+     * right. Callers add whichever label style class (reply vs. error) fits
+     * the message.
      */
     private void flip() {
         ObservableList<Node> children = FXCollections.observableArrayList(this.getChildren());
         Collections.reverse(children);
         getChildren().setAll(children);
         setAlignment(Pos.TOP_LEFT);
-        dialog.getStyleClass().add("reply-label");
     }
 
     /**
@@ -65,7 +70,7 @@ public class DialogBox extends HBox {
      * @return the dialog box, aligned to the right
      */
     public static DialogBox getUserDialog(String text, Image image) {
-        return new DialogBox(text, image);
+        return new DialogBox(text, image, USER_AVATAR_DIAMETER);
     }
 
     /**
@@ -77,8 +82,24 @@ public class DialogBox extends HBox {
      * @return the dialog box, aligned to the left
      */
     public static DialogBox getClearblueDialog(String text, Image image) {
-        DialogBox dialogBox = new DialogBox(text, image);
+        DialogBox dialogBox = new DialogBox(text, image, BOT_AVATAR_DIAMETER);
         dialogBox.flip();
+        dialogBox.dialog.getStyleClass().add("reply-label");
+        return dialogBox;
+    }
+
+    /**
+     * Creates a dialog box for an error message, flipped to the left like a
+     * normal reply but styled to stand out from one.
+     *
+     * @param text error message text
+     * @param image Clearblue's avatar
+     * @return the dialog box, aligned to the left
+     */
+    public static DialogBox getErrorDialog(String text, Image image) {
+        DialogBox dialogBox = new DialogBox(text, image, BOT_AVATAR_DIAMETER);
+        dialogBox.flip();
+        dialogBox.dialog.getStyleClass().add("error-label");
         return dialogBox;
     }
 }
