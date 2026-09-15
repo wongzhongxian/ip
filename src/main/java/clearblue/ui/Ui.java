@@ -83,14 +83,6 @@ public class Ui {
     }
 
     /**
-     * Prints the list of supported commands after an unknown command.
-     */
-    public void showUnknownCommand() {
-        showError("I don't recognize that command. "
-                + "Try todo, deadline, event, list, mark, unmark, delete, on, find, or bye.");
-    }
-
-    /**
      * Prints confirmation after a task is added.
      *
      * @param task task that was added
