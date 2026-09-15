@@ -83,6 +83,18 @@ public class Ui {
     }
 
     /**
+     * Warns that some saved data could not be read on startup, so the user
+     * knows those tasks are missing rather than assuming none were ever saved.
+     *
+     * @param skippedLineCount number of corrupted lines that were skipped
+     */
+    public void showCorruptedDataWarning(int skippedLineCount) {
+        String line = skippedLineCount == 1 ? "line" : "lines";
+        showError(skippedLineCount + " " + line + " in your saved data could not be read and "
+                + (skippedLineCount == 1 ? "was" : "were") + " skipped.");
+    }
+
+    /**
      * Prints confirmation after a task is added.
      *
      * @param task task that was added
